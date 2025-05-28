@@ -1,4 +1,4 @@
-package com.example.picweb;
+package com.picweb;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

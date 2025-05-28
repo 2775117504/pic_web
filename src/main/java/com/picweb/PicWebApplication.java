@@ -1,4 +1,4 @@
-package com.example.picweb;
+package com.picweb;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
