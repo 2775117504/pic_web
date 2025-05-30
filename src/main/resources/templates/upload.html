@@ -1,0 +1,216 @@
+
+<!--图片上传主界面-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>主页</title>
+    <style>
+        body {
+            background-color: #000000;
+
+
+        }
+        h2 {
+            color: #b8b8b8;
+            text-align: center;
+
+        }
+        form {
+            margin: 20px auto;
+            width: 300px;
+            padding: 2px;
+            background-color: rgba(255, 255, 255, 0);
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            /*border: white  1px solid;*/
+        }
+
+        .custom-file-input {
+            position: relative;
+            display: inline-block; /* 块级元素 */
+            width: 85px;
+            height: 40px;
+            /*overflow: hidden;*/
+            margin-bottom: 10px;
+        }
+
+        .custom-file-input input[type="file"] {
+            position: absolute; /* 绝对定位 */
+            top: 0;
+            left: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer; /* 隐藏默认的输入框样式 */
+            border: #ffffff 1px solid;
+
+
+
+        }
+
+        .custom-file-input label {
+            color: white;
+            background-color: rgba(103, 103, 103, 0.69);
+            padding: 10px 5px;
+            font-size: 13px;
+            display: block;
+
+            border-radius: 2px;
+            width: 85px;
+            height: 20px;
+            border: rgba(255, 255, 255, 0.72) 1px solid;
+            text-align: center;
+        }
+        .urlInput  {
+            width: 100%;
+            height: 40px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(204, 204, 204, 0.93);
+            border-radius: 2px;
+            box-sizing: border-box;
+            background-color: black;
+            color: #ffffff;
+        }
+        button {
+            background-color: rgba(35, 120, 194, 0.76);
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 2px;
+            width: 300px;
+            height: 40px;
+            /*border: white  1px solid;*/
+
+
+        }
+        img  {
+            width: 350px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+
+        }
+        /*div {*/
+
+
+        /*    display: flex;*/
+        /*    align-items: center;*/
+        /*    justify-content: center; //居中显示*/
+
+
+
+        .login-link {
+            position: absolute;         /*//以绝对位置的方式放于右上角*/
+            top: 2px;
+            right:4px;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+
+
+        }
+        .staging-link {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            position: absolute;         /*//以绝对位置的方式放于右上角*/
+            top: 2px;
+            left: 4px;
+
+        }
+        .yulan {
+            width: 100%;
+            height: 2000px;
+            border: white  1px solid;
+
+        }
+/*!*        .yulan  img {
+            display: flex; !*!/ 弹性布局*!
+            align-items: center; !*!/ 垂直居中*!
+        }*!*/
+        #erro {
+            /*border: white  1px solid;*/
+            top: -20px;
+            position: relative; /*绝对位置*/
+            text-align: center;
+
+        }
+    </style>
+</head>
+<body>
+<a href="/staging" class="staging-link">暂存区</a>
+<a href="/login" class="login-link">登录</a>
+<!--th:src用于动态设置 HTML 元素的 src 属性值如 <img>、<script>、<link> -->
+<!--@{}Thymeleaf 的 URL 表达式语法-->
+<img th:src="@{Logo/logo3.png}" alt="" title="欢迎">
+
+<form method="POST" action="/upload" enctype="multipart/form-data"> <!--上传本地图片或url并提交-->
+    <div class="custom-file-input">
+        <input type="file" id="customFile" name="file" multiple>
+        <label for="customFile" >Select &nbsp; Image</label>
+    </div>
+
+    <input type="text" name="" id="" class="urlInput" placeholder="Input &nbsp; Url" title="请输入图片链接">
+    <button type="submit">提交</button>
+</form>
+
+<div id="erro" style="color: #be1a1a"></div> <!--// 错误提示-->
+<div class="yulan">  <!--//  图片预览-->
+   <div id="yulan"></div>
+</div>
+<script>
+    <!-- 图片预览实现 -->
+    document.getElementById('customFile').addEventListener('change', function () {
+        document.getElementById('erro').innerText = '';
+        const files = this.files; /*// 获取所有选中的文件*/
+        const yulanimg = document.getElementById('yulan');
+        yulanimg.innerHTML = ''; /*// 清空之前的预览*/
+
+        if (files.length === 0) {
+            return;
+        }
+
+        // 遍历每个文件
+        var i=0,j=0;
+        Array.from(files).forEach(file => {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = '180px';
+                    img.style.margin = '35px';
+                    img.style.marginBottom = '90px';
+                    img.style.border = '1px solid white';
+                    img.style.display = 'inline-block';
+
+                    yulanimg.appendChild(img);
+                };
+
+                reader.readAsDataURL(file);
+                j+=1;
+            }else{
+                i+=1;
+            }
+        });
+        document.getElementById('erro').innerText = '成功扫描'+j+'个图片,'+'有'+i+'个非图片';
+    });
+
+
+/*    //if (file && file.type.startsWith('image/')) { //  判断选择的文件是否是图片
+    //         const reader = new FileReader();
+    //
+    //         reader.onload = function (e) { //  监听文件读取完成事件
+    //         yulanImg.src = e.target.result; // 将读取的图片数据设置到图片预览的元素中
+    //         yulanImg.style.display = 'block';  //  显示图片
+    //         document.getElementById('erro').innerText = '';
+    // };*/
+
+</script>
+</body>
+</html>
