@@ -17,15 +17,6 @@
             text-align: center;
 
         }
-        form {
-            margin: 20px auto;
-            width: 300px;
-            padding: 2px;
-            background-color: rgba(255, 255, 255, 0);
-            border-radius: 2px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            /*border: white  1px solid;*/
-        }
 
         .custom-file-input {
             position: relative;
@@ -81,27 +72,24 @@
             font-size: 16px;
             border: none;
             border-radius: 2px;
-            width: 300px;
+            width: 400px;
             height: 40px;
             /*border: white  1px solid;*/
 
 
         }
-        img  {
-            width: 350px;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-
+         .logo {
+             width: 450px;
+             height: 100px;
+             display: block;
+             margin: 0 auto;
         }
-        /*div {*/
 
+        /*div {*/
 
         /*    display: flex;*/
         /*    align-items: center;*/
         /*    justify-content: center; //居中显示*/
-
-
 
         .login-link {
             position: absolute;         /*//以绝对位置的方式放于右上角*/
@@ -125,7 +113,8 @@
         .yulan {
             width: 100%;
             height: 2000px;
-            border: white  1px solid;
+            border: rgba(255, 255, 255, 0.5) 1px solid;
+
 
         }
 /*!*        .yulan  img {
@@ -139,6 +128,49 @@
             text-align: center;
 
         }
+        #two-upload{
+            border: white  1px solid;
+
+        }
+        .uploadForm1{
+            border: rgba(255, 255, 255, 0.5) 1px solid;
+            width: 590px;
+            height: 320px;
+            margin-top: -30px;
+            background-color: rgba(37, 40, 60, 0.81);
+
+        }
+        .uploadForm2 {
+            margin: auto auto;
+            margin-top: 10px;
+            width: 400px;
+            padding: 2px;
+            background-color: rgba(255, 255, 255, 0);
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            /*border: white  1px solid;*/
+        }
+        .logForm {
+            border: rgba(255, 255, 255, 0.5) 1px solid;
+            width: 590px;
+            height: 300px;
+            margin-top: -30px;
+            background-color: rgba(37, 40, 60, 0.81);
+            overflow-y: auto; /* ✅ 关键：超出高度后显示垂直滚动条 */
+            padding: 10px;
+            font-family: monospace;
+            white-space: pre-wrap; /* ✅ 支持换行显示 */
+        }
+         .three-form{
+             display: flex;
+             gap: 10px; /* 可选：设置两个表单之间的间距 */
+             /*border: white  1px solid;*/
+             margin: 2px auto;
+             width: 100%;
+
+
+         }
+
     </style>
 </head>
 <body>
@@ -146,23 +178,201 @@
 <a href="/login" class="login-link">登录</a>
 <!--th:src用于动态设置 HTML 元素的 src 属性值如 <img>、<script>、<link> -->
 <!--@{}Thymeleaf 的 URL 表达式语法-->
-<img th:src="@{Logo/logo3.png}" alt="" title="欢迎">
+<img th:src="@{Logo/logo3.png}" src="../static/Logo/logo3.png" alt="" title="欢迎" class="logo">
+<!--action=“”指定表单提交的目标 URL，即用户点击“提交”按钮后数据会被发送到哪个接口。-->
+<div class="three-form">
+    <form method="POST" action="/imageSourceUpload" enctype="multipart/form-data" class="uploadForm1"><!--不需要加name="ImageSource"属性因为是通过JS的fetch()发送文件的，而不是靠原生表单提交-->
+        <div class="dropZone" id="dropZone" style="                 /*这是一个前端拖拽实现*/
+            width: 95%;
+            height: 280px;
+            margin: 20px auto;
+            border: 1px dashed #ccc;
+            color: white;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;  /* 水平居中 */
+            align-items: center;      /* 垂直居中 */
+            text-align: center;
+            /*flex-direction: column;*/
+        ">
+            将图源拖入此处导入
+        </div>
+    </form>
+    <form method="POST" action="/imageUpload" enctype="multipart/form-data" class="uploadForm2"> <!--上传本地图片或url并提交-->
+        <div>
+            <div class="custom-file-input">
+                <input type="file" id="customFile" name="Image"  multiple><!--“file"与后端的@RequestParam("file")-保持一致-->
+                <label for="customFile" >Select &nbsp; Image</label>           <!--webkitdirectory：允许用户选择一个文件夹，并递归获取该文件夹下的所有文件。-->
+            </div>                                                        <!--multiple：       允许多个文件选择（在某些浏览器下配合 webkitdirectory 使用）。-->
 
-<form method="POST" action="/upload" enctype="multipart/form-data"> <!--上传本地图片或url并提交-->
-    <div class="custom-file-input">
-        <input type="file" id="customFile" name="file" multiple>
-        <label for="customFile" >Select &nbsp; Image</label>
+            <input type="text" name="" id="" class="urlInput" placeholder="Input &nbsp; Url" title="请输入图片链接">
+            <button type="submit" style="font-weight: bolder;">提交</button>
+
+        </div>
+
+    </form>
+    <div class="logForm" id="logForm">
+
     </div>
-
-    <input type="text" name="" id="" class="urlInput" placeholder="Input &nbsp; Url" title="请输入图片链接">
-    <button type="submit">提交</button>
-</form>
-
+</div>
 <div id="erro" style="color: #be1a1a"></div> <!--// 错误提示-->
+
 <div class="yulan">  <!--//  图片预览-->
    <div id="yulan"></div>
 </div>
 <script>
+    /*图源上传前端逻辑实现*/
+    const dropZone = document.getElementById("dropZone");
+
+    // 鼠标进入
+    dropZone.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        dropZone.style.border = "1px dashed rgb(237,237,237)";
+        dropZone.style.backgroundColor = "rgba(255,255,255,0.2)";
+    });
+
+    // 鼠标离开
+    dropZone.addEventListener("dragleave", function () {
+        dropZone.style.border = "1px dashed #ccc";
+        dropZone.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+    });
+
+    // 放下文件
+    dropZone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        dropZone.style.backgroundColor = "rgba(58,89,121,0.66)";
+
+/*      拖拽文件夹功能的实现*/
+        const items = e.dataTransfer.items;
+        // 存储所有有效的图片文件
+        const imageFiles = [];
+
+        // 递归读取和获取目录
+        function readEntry(entry, path = "") {
+            return new Promise((resolve) => {
+                if (entry.isFile) {
+                    entry.file(file => {
+                        // 添加虚拟路径属性
+                        file.relativePath = path + file.name;
+                        if (file.type.startsWith('image/')) {
+                            imageFiles.push(file);
+                        }
+                        resolve();
+                    });
+                } else if (entry.isDirectory) {
+                    const reader = entry.createReader();
+                    reader.readEntries(async entries => {
+                        for (let child of entries) {
+                            await readEntry(child, path + entry.name + "/");
+                        }
+                        resolve();
+                    });
+                }
+            });
+        }
+
+        // 处理所有拖入项
+        const processItems = async () => {
+            for (let item of items) {
+                const entry = item.webkitGetAsEntry();
+                if (entry) {
+                    await readEntry(entry);
+                }
+            }
+
+            if (imageFiles.length === 0) {
+                alert("没有有效的图片文件");
+                return;
+            }
+
+            // 构建 formData 并上传
+            const formData = new FormData();
+            let imageCount = 0;
+            let nonImageCount = 0;
+
+            imageFiles.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    formData.append("ImageSource", file);
+                    imageCount++;
+                } else {
+                    nonImageCount++;
+                }
+            });
+
+            document.getElementById('erro').innerText =
+                '成功扫描 ' + imageCount + ' 张图片，有 ' + nonImageCount + ' 个非图片';
+
+            uploadFiles(imageFiles,formData);
+        };
+
+        processItems();
+    });
+
+
+
+
+    /*异步上传函数（使用 fetch）*/
+    function uploadFiles(imageFiles, formData) {
+        // 清空历史日志
+        document.getElementById("logForm").innerHTML = "";
+
+        // 获取所有文件的 relativePath 并附加到 formData
+        imageFiles.forEach(file => {
+            formData.append("relativePath", file.relativePath); // 多个值一起发送
+        });
+
+        fetch("/imageSourceUpload", {   // 这里是你后端的上传接口地址
+            method: "POST",
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'  // 可选：告诉后端是 AJAX 请求
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("上传失败");
+                }
+                return response.text();  // 或 response.json() 如果后端返回 JSON
+            })
+            .then(data => {
+                console.log("上传结果:", data);
+                // const resultDiv = document.createElement("div")
+            })
+            .catch(error => {
+                console.error("上传出错:", error);
+                alert("上传失败，请查看控制台日志");
+            });
+    }
+
+
+    // 在页面加载时建立 SSE 连接，前端监听 SSE 流并逐条显示信息
+    function connectToSSE() {
+        const eventSource = new EventSource("/uploadProgress?nocache=" + Math.random());
+
+        eventSource.onmessage = function(event) {
+            const logDiv = document.getElementById("logForm");
+            logDiv.style.color = "rgba(234,234,234,0.89)";
+            logDiv.innerHTML += event.data + "<br>";
+            logDiv.scrollTop = logDiv.scrollHeight;
+        };
+
+        eventSource.onerror = function(err) {
+            console.error("SSE 出错:", err);
+            eventSource.close();
+
+            setTimeout(() => {
+                console.log("正在尝试重新连接 SSE...");
+                connectToSSE(); // 自动重连
+            }, 5000);
+        };
+    }
+
+    // 页面加载时开始监听 SSE
+    connectToSSE();
+
+
+
     <!-- 图片预览实现 -->
     document.getElementById('customFile').addEventListener('change', function () {
         document.getElementById('erro').innerText = '';
