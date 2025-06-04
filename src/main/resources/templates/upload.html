@@ -134,7 +134,7 @@
         }
         .uploadForm1{
             border: rgba(255, 255, 255, 0.5) 1px solid;
-            width: 590px;
+            width: 610px;
             height: 320px;
             margin-top: -30px;
             background-color: rgba(37, 40, 60, 0.81);
@@ -199,30 +199,35 @@
             将图源拖入此处导入
         </div>
     </form>
-    <form method="POST" action="/imageUpload" enctype="multipart/form-data" class="uploadForm2"> <!--上传本地图片或url并提交-->
+
+    <form id="uploadForm2" method="POST" action="/imageUpload" enctype="multipart/form-data" class="uploadForm2"> <!--上传本地图片或url并提交-->
         <div>
             <div class="custom-file-input">
                 <input type="file" id="customFile" name="Image"  multiple><!--“file"与后端的@RequestParam("file")-保持一致-->
                 <label for="customFile" >Select &nbsp; Image</label>           <!--webkitdirectory：允许用户选择一个文件夹，并递归获取该文件夹下的所有文件。-->
             </div>                                                        <!--multiple：       允许多个文件选择（在某些浏览器下配合 webkitdirectory 使用）。-->
 
-            <input type="text" name="" id="" class="urlInput" placeholder="Input &nbsp; Url" title="请输入图片链接">
+            <input type="text" name="Url" id="" class="urlInput" placeholder="Input &nbsp; Url" title="请输入图片链接">
             <button type="submit" style="font-weight: bolder;">提交</button>
-
         </div>
-
     </form>
+
     <div class="logForm" id="logForm">
 
     </div>
 </div>
+
 <div id="erro" style="color: #be1a1a"></div> <!--// 错误提示-->
 
 <div class="yulan">  <!--//  图片预览-->
    <div id="yulan"></div>
 </div>
+
 <script>
-    /*图源上传前端逻辑实现*/
+/*
+====================================================================拖拽功能:图源导入的前端js实现====================================================================
+*/
+//--拖拽功能的监听事件
     const dropZone = document.getElementById("dropZone");
 
     // 鼠标进入
@@ -238,17 +243,17 @@
         dropZone.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
     });
 
-    // 放下文件
+    // 放下文件的监听事件:图源由此导入
     dropZone.addEventListener("drop", function (e) {
         e.preventDefault();
         dropZone.style.backgroundColor = "rgba(58,89,121,0.66)";
 
-/*      拖拽文件夹功能的实现*/
-        const items = e.dataTransfer.items;
-        // 存储所有有效的图片文件
-        const imageFiles = [];
+//------拖拽文件夹功能的实现
+        const items = e.dataTransfer.items; // 获取拖拽的所有文件
 
-        // 递归读取和获取目录
+        const imageFiles = [];// 存储所有有效的图片文件
+
+        // 递归读取和获取目录的函数
         function readEntry(entry, path = "") {
             return new Promise((resolve) => {
                 if (entry.isFile) {
@@ -288,20 +293,20 @@
 
             // 构建 formData 并上传
             const formData = new FormData();
-            let imageCount = 0;
-            let nonImageCount = 0;
+            let i = 0;
+            let n = 0;
 
             imageFiles.forEach(file => {
                 if (file.type.startsWith('image/')) {
                     formData.append("ImageSource", file);
-                    imageCount++;
+                    i++;
                 } else {
-                    nonImageCount++;
+                    n++;
                 }
             });
 
             document.getElementById('erro').innerText =
-                '成功扫描 ' + imageCount + ' 张图片，有 ' + nonImageCount + ' 个非图片';
+                '成功扫描 ' + i + ' 张图片，有 ' + n + ' 个非图片';
 
             uploadFiles(imageFiles,formData);
         };
@@ -312,9 +317,9 @@
 
 
 
-    /*异步上传函数（使用 fetch）*/
+    /*仅作用于前端的异步上传函数（使用 fetch链式结构）*/
     function uploadFiles(imageFiles, formData) {
-        // 清空历史日志
+        // 清空历史日志（考虑是否存于本地日志）
         document.getElementById("logForm").innerHTML = "";
 
         // 获取所有文件的 relativePath 并附加到 formData
@@ -333,7 +338,7 @@
                 if (!response.ok) {
                     throw new Error("上传失败");
                 }
-                return response.text();  // 或 response.json() 如果后端返回 JSON
+                return response.text();  // 或response.json() 如果后端返回的是JSON数据
             })
             .then(data => {
                 console.log("上传结果:", data);
@@ -346,7 +351,9 @@
     }
 
 
-    // 在页面加载时建立 SSE 连接，前端监听 SSE 流并逐条显示信息
+/*
+==================================================通用函数: 在页面加载时建立 SSE 连接，前端监听 SSE 流并逐条显示信息====================================================
+*/
     function connectToSSE() {
         const eventSource = new EventSource("/uploadProgress?nocache=" + Math.random());
 
@@ -372,8 +379,10 @@
     connectToSSE();
 
 
-
-    <!-- 图片预览实现 -->
+/*
+==================================================================上传功能:图片上传的前端js实现===================================================================
+*/
+//1、图片预览功能js实现
     document.getElementById('customFile').addEventListener('change', function () {
         document.getElementById('erro').innerText = '';
         const files = this.files; /*// 获取所有选中的文件*/
@@ -385,7 +394,7 @@
         }
 
         // 遍历每个文件
-        var i=0,j=0;
+        let i=0,j=0;
         Array.from(files).forEach(file => {
             if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
@@ -410,17 +419,31 @@
         });
         document.getElementById('erro').innerText = '成功扫描'+j+'个图片,'+'有'+i+'个非图片';
     });
+//2、仅作用于前端的异步功能实现
+    document.getElementById('uploadForm2').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const Images = formData.getAll('Image')
+        const Urls = formData.getAll('Url')
+
+        fetch("/imageUpload", {
+            method: "POST",
+            body: formData,
+
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("上传失败");
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log("上传结果:", data);
+            })
 
 
-/*    //if (file && file.type.startsWith('image/')) { //  判断选择的文件是否是图片
-    //         const reader = new FileReader();
-    //
-    //         reader.onload = function (e) { //  监听文件读取完成事件
-    //         yulanImg.src = e.target.result; // 将读取的图片数据设置到图片预览的元素中
-    //         yulanImg.style.display = 'block';  //  显示图片
-    //         document.getElementById('erro').innerText = '';
-    // };*/
-
+    })
 </script>
 </body>
 </html>

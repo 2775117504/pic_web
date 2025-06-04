@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import java.awt.image.BufferedImage;
 @Service   /**用于标记一个类是 Spring 组件，表示该类是 Spring 容器中的一个Bean，可以注入到其他Bean中。
  /**
- * ====================感知哈希算法，返回图片的哈希值=========================
+ * ===================================感知哈希算法，返回图片的哈希值===========================================
  */
 
 public class ImageHashService {
@@ -17,9 +17,8 @@ public class ImageHashService {
 
         BufferedImage resizedImage = resize(image, 8, 8);
         /**
-         *
+         *转换为灰度图并计算平均像素值
          */
-        // 转换为灰度图并计算平均像素值
         long total = 0;
         int[][] grayPixels = new int[8][8];
 
@@ -35,9 +34,8 @@ public class ImageHashService {
             }
         }
         /**
-         *
+         *计算平均值
          */
-        // 计算平均值
         long average = total / 64;
         /**
          *

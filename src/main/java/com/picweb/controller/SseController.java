@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 /**
- * 通过sse来实现逐步推送消息的 控制器
+ *=======================================通用控制器: 通过sse来实现逐步推送消息的控制器===========================================
  */
 
 @RestController

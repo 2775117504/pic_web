@@ -44,7 +44,7 @@ public class UploadController {
     /*==========================================导入图片数据至数据库的控制器===========================================*/
     @PostMapping ("/imageSourceUpload")
     @ResponseBody
-    public String ImageSourceUpload(@RequestParam("ImageSource") MultipartFile[] files,
+    public String ImageSourceUpload(@RequestParam("ImageSource") MultipartFile[] files,  //<<<-----RequestParam连个值对应前端formdata的两个键(key),没错还可以这么用
                                     @RequestParam("relativePath") String[] relativePaths) throws IOException {
         StringBuilder  result = new StringBuilder();
 
@@ -83,10 +83,11 @@ public class UploadController {
         return "OK";  // 返回 OK 表示请求成功，不用于前端显示
 
     }
-/*==================================================上传图片的控制器=================================================*/
+/*==================================================上传图片的控制器=====================================================*/
     @PostMapping("/imageUpload")
     @ResponseBody          /*将方法的返回值直接写入 HTTP 响应体中，而不是作为视图名称解析。*/
-    public String ImageUpdate(@RequestParam("Image") MultipartFile[] files) throws IOException {
+    public String ImageUpdate(@RequestParam("Image") MultipartFile[] files,
+                              @RequestParam("Url") String url) throws IOException {
         StringBuilder result = new StringBuilder();  /*StringBuilder 是用来高效拼接字符串的工具类*/
 /**
            例子
@@ -128,14 +129,13 @@ public class UploadController {
              *调用service层upload方法
              **/
             String res = uploadService.upload(file,hash,md5);
-            /**
-             *拼接每个文件的上传结果
-             */
-            result.append(res).append("<br>");
+            sseController.sendMessageToAllClients(res);
+
         }
         /**
          *返回拼接好的service层的return的所有上传成功字符串
          */
-        return result.toString();
+        sseController.sendMessageToAllClients("图片上传完成！");
+        return "OK";
     }
 }
