@@ -13,7 +13,15 @@ public class ImageHashEntity {
     @Id
     private String MD5;
     private String hash;
+
+    private String url;
 //  构造函数
+    public ImageHashEntity(String MD5, String hash,  String url) {
+        this.MD5 = MD5;
+        this.hash = hash;
+        this.url = url;
+    }
+
     public ImageHashEntity(String MD5, String hash) {
         this.MD5 = MD5;
         this.hash = hash;
@@ -37,5 +45,12 @@ public class ImageHashEntity {
 
     public void setHash(String hash) {
         this.hash = hash;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

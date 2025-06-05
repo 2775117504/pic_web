@@ -1,15 +1,11 @@
 package com.picweb.controller;
 
-import com.picweb.service.ImageHashService;
-import com.picweb.service.ImageMD5Service;
-import com.picweb.service.ImportService;
+import com.picweb.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.picweb.service.UploadService;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -41,22 +37,35 @@ public class UploadController {
     private ImageMD5Service imageMD5Service;
     @Autowired
     private SseController sseController;
+
+    @Autowired
+    private AsyncService asyncService;
     /*==========================================导入图片数据至数据库的控制器===========================================*/
     @PostMapping ("/imageSourceUpload")
     @ResponseBody
     public String ImageSourceUpload(@RequestParam("ImageSource") MultipartFile[] files,  //<<<-----RequestParam连个值对应前端formdata的两个键(key),没错还可以这么用
                                     @RequestParam("relativePath") String[] relativePaths) throws IOException {
-        StringBuilder  result = new StringBuilder();
 
         for (int i = 0; i < files.length && i < relativePaths.length; i++) {
             MultipartFile file = files[i];
             String relativePath = relativePaths[i];
 
-            StringBuilder  systemResult = new StringBuilder(); // 打印至后端控制台
+            asyncService.ImportAsync(file, relativePath);
+        }
+            /*
+            StringBuilder  systemResult = new StringBuilder(); ////后端控制台: 打印至后端控制台
+
             if (!file.isEmpty()) {
-
+                *//**
+                 * 调用service层calculateMD5方法来获取图片的MD5值
+                 *//*
                 String md5 = imageMD5Service.calculateMD5(file);
-
+                *//**
+                 * 因为函数无法处理MultipartFile类型文件，所以先转换成BufferedImage类型
+                 * 此处的getInputStream()为一次性流，待优化。
+                 * byte[] fileBytes = file.getBytes(); // 把整个文件读入内存
+                 * 暂时以把处理MD5放在前作为临时手段
+                 *//*
                 BufferedImage image=null;
                 try {
                     image = ImageIO.read(file.getInputStream());
@@ -64,22 +73,23 @@ public class UploadController {
                     System.out.println("图片格式转换出错!!!");
                     throw new RuntimeException(e);
                 }
+                *//**
+                 * 调用service层averageHash方法来获取图片的hash值
+                 *//*
                 String hash = imageHashService.averageHash(image);
 
                 String res = importService.upload(file,hash,md5,relativePath);
 
-                result.append(res).append("<br>");
-                systemResult.append(res); // 打印至后端控制台
-                /**
+                systemResult.append(res); ////后端控制台: 打印至后端控制台
+                *//**
                  * 调取SseController控制类层的函数，与前端的sse通信
-                 */
+                 *//*
                 sseController.sendMessageToAllClients(res);
-                System.out.println(systemResult); // 打印至后端控制台
-            }
+                System.out.println(systemResult); ////后端控制台: 打印至后端控制台
+            }*/
 
-        }
         sseController.sendMessageToAllClients("图源导入完成！"); //sse所有消息逐步推送完成后的最终输出
-        System.out.println("图源导入完成!");// 打印至后端控制台
+        System.out.println("图源导入完成!");////后端控制台: 打印至后端控制台
         return "OK";  // 返回 OK 表示请求成功，不用于前端显示
 
     }
@@ -133,7 +143,7 @@ public class UploadController {
 
         }
         /**
-         *返回拼接好的service层的return的所有上传成功字符串
+         *sse所有消息逐步推送完成后的最终输出
          */
         sseController.sendMessageToAllClients("图片上传完成！");
         return "OK";

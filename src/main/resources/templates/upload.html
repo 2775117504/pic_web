@@ -269,7 +269,7 @@
                     const reader = entry.createReader();
                     reader.readEntries(async entries => {
                         for (let child of entries) {
-                            await readEntry(child, path + entry.name + "/");
+                            await readEntry(child, path + entry.name + "\\");
                         }
                         resolve();
                     });

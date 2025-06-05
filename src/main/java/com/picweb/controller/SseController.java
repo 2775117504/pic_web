@@ -1,5 +1,6 @@
 package com.picweb.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,6 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executor;
+
 /**
  *=======================================通用控制器: 通过sse来实现逐步推送消息的控制器===========================================
  */
@@ -40,16 +43,22 @@ public class SseController {
     }
 
     // 提供给 UploadController 调用的方法
+    @Autowired
+    private Executor taskExecutor; // 使用你定义的线程池
+
     public void sendMessageToAllClients(String message) {
         List<SseEmitter> deadEmitters = new ArrayList<>();
         emitters.forEach(emitter -> {
-            try {
-                emitter.send(message);
-            } catch (IOException | IllegalStateException e) {
-                deadEmitters.add(emitter);
-                emitter.complete();
-            }
+            taskExecutor.execute(() -> { // 异步发送，避免阻塞上传线程
+                try {
+                    emitter.send(message);
+                } catch (IOException | IllegalStateException e) {
+                    deadEmitters.add(emitter);
+                    emitter.complete();
+                }
+            });
         });
         emitters.removeAll(deadEmitters);
     }
 }
+
