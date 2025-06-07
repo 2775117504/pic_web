@@ -4,11 +4,11 @@ import org.springframework.stereotype.Service;
 
 import java.awt.image.BufferedImage;
 @Service   /**用于标记一个类是 Spring 组件，表示该类是 Spring 容器中的一个Bean，可以注入到其他Bean中。
- /**
- * ===================================感知哈希算法，返回图片的哈希值===========================================
+ /*
+ ===================================================平均哈希算法具体实现==============================================
  */
 
-public class ImageHashService {
+public class ImageaHashService {
 
     public static String averageHash(BufferedImage image) {
         /**
@@ -79,7 +79,7 @@ public class ImageHashService {
     /**
      * 计算两个哈希值之间的汉明距离（差异位数）
      */
-    public static int hammingDistance(String hash1, String hash2) {
+    public static double hammingDistance(String hash1, String hash2) {
         if (hash1.length() != hash2.length()) {
             throw new IllegalArgumentException("两个哈希长度不一致");
         }
@@ -90,7 +90,9 @@ public class ImageHashService {
                 distance++;
             }
         }
-        return distance;
+        int length = hash1.length();
+
+        return (1.0 - ((double) distance / length)) * 100;
     }
 }
 

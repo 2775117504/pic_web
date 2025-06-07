@@ -32,9 +32,11 @@ public class UploadController {
     private ImportService importService;
 //  文件上传处理
     @Autowired
-    private ImageHashService imageHashService;
+    private ImageaHashService imageaHashService;
     @Autowired
     private ImageMD5Service imageMD5Service;
+    @Autowired
+    private ImagepHashService imagepHashService;
     @Autowired
     private SseController sseController;
 
@@ -44,7 +46,7 @@ public class UploadController {
     @PostMapping ("/imageSourceUpload")
     @ResponseBody
     public String ImageSourceUpload(@RequestParam("ImageSource") MultipartFile[] files,  //<<<-----RequestParam连个值对应前端formdata的两个键(key),没错还可以这么用
-                                    @RequestParam("relativePath") String[] relativePaths) throws IOException {
+                                    @RequestParam("relativePath") String[] relativePaths) throws Exception {
 
         for (int i = 0; i < files.length && i < relativePaths.length; i++) {
             MultipartFile file = files[i];
@@ -97,7 +99,7 @@ public class UploadController {
     @PostMapping("/imageUpload")
     @ResponseBody          /*将方法的返回值直接写入 HTTP 响应体中，而不是作为视图名称解析。*/
     public String ImageUpdate(@RequestParam("Image") MultipartFile[] files,
-                              @RequestParam("Url") String url) throws IOException {
+                              @RequestParam("Url") String url) throws Exception {
         StringBuilder result = new StringBuilder();  /*StringBuilder 是用来高效拼接字符串的工具类*/
 /**
            例子
@@ -116,31 +118,23 @@ public class UploadController {
              * 调用service层calculateMD5方法来获取图片的MD5值
              */
             String md5 = imageMD5Service.calculateMD5(file);
-
             /**
              * 因为函数无法处理MultipartFile类型文件，所以先转换成BufferedImage类型
              * 此处的getInputStream()为一次性流，待优化。
              * byte[] fileBytes = file.getBytes(); // 把整个文件读入内存
              * 暂时以把处理MD5放在前作为临时手段
              */
-            BufferedImage image=null;
-            try {
-                image = ImageIO.read(file.getInputStream());
-            } catch (IOException e) {
-                System.out.println("图片格式转换出错!!!");
-                throw new RuntimeException(e);
-            }
-
+            BufferedImage image = ImageIO.read(file.getInputStream());
             /**
              * 调用service层averageHash方法来获取图片的hash值
              */
-            String hash = imageHashService.averageHash(image);
+            String ahash = imageaHashService.averageHash(image);
+            String phash = imagepHashService.perceptualHash(image);
             /**
              *调用service层upload方法
              **/
-            String res = uploadService.upload(file,hash,md5);
+            String res = uploadService.upload(file,ahash,phash,md5);
             sseController.sendMessageToAllClients(res);
-
         }
         /**
          *sse所有消息逐步推送完成后的最终输出

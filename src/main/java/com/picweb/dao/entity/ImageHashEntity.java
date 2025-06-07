@@ -12,19 +12,24 @@ import javax.persistence.Table;
 public class ImageHashEntity {
     @Id
     private String MD5;
-    private String hash;
+    private String ahash;
+    private String phash;
+
+
 
     private String url;
 //  构造函数
-    public ImageHashEntity(String MD5, String hash,  String url) {
-        this.MD5 = MD5;
-        this.hash = hash;
-        this.url = url;
-    }
+public ImageHashEntity(String MD5, String ahash, String phash, String url) {
+    this.MD5 = MD5;
+    this.ahash = ahash;
+    this.phash = phash;
+    this.url = url;
+}
 
-    public ImageHashEntity(String MD5, String hash) {
+    public ImageHashEntity(String MD5, String ahash, String phash) {
         this.MD5 = MD5;
-        this.hash = hash;
+        this.ahash = ahash;
+        this.phash = phash;
     }
 
     public ImageHashEntity() {
@@ -40,11 +45,11 @@ public class ImageHashEntity {
     }
 
     public String getHash() {
-        return hash;
+        return ahash;
     }
 
     public void setHash(String hash) {
-        this.hash = hash;
+        this.ahash = hash;
     }
 
     public String getUrl() {
@@ -52,5 +57,13 @@ public class ImageHashEntity {
     }
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getPhash() {
+        return phash;
+    }
+
+    public void setPhash(String phash) {
+        this.phash = phash;
     }
 }

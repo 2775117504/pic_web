@@ -17,19 +17,16 @@ public class UploadService {
     /**
      *    判断上传的文件是否为图片的函数
      */
-
-
     public boolean isImageFile(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
     }
-
     /**
      *    hash(批量)上传图片的函数
      */
     @Autowired
     private ImageHashDao ImageHashDao;
-    public String upload(MultipartFile file,  String hash, String MD5){
+    public String upload(MultipartFile file,  String ahash, String phash,String MD5){
         if (file.isEmpty()) {
             return "文件为空，请选择一个文件上传。";
         }
@@ -48,12 +45,10 @@ public class UploadService {
              * 等价于 ImageHashDao.save(new ImageHashEntity(MD5, hash));
              *
              */
-
-            ImageHashEntity imageHashEntity = new ImageHashEntity(MD5, hash);
+            ImageHashEntity imageHashEntity = new ImageHashEntity(MD5, ahash, phash);
             ImageHashDao.save(imageHashEntity);
 
-            return "文件上传成功：" + file.getOriginalFilename() + "，保存路径：" +
-                    filePath+"<br>&nbsp;&nbsp;--"+"hash值："+hash+"<br>&nbsp;&nbsp;--"+"MD5值："+MD5;
+            return "文件上传成功：" + file.getOriginalFilename();
 
         } catch (IOException e) {
             e.printStackTrace();

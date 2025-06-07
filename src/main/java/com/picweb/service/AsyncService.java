@@ -18,13 +18,15 @@ public class AsyncService {
     private ImportService importService;
     //  文件上传处理
     @Autowired
-    private ImageHashService imageHashService;
+    private ImageaHashService imageaHashService;
     @Autowired
     private ImageMD5Service imageMD5Service;
     @Autowired
+    private ImagepHashService imagepHashService;
+    @Autowired
     private SseController sseController;
     @Async("taskExecutors")
-    public void ImportAsync(MultipartFile file,String relativePath) throws IOException{
+    public void ImportAsync(MultipartFile file,String relativePath) throws Exception {
 
             StringBuilder  systemResult = new StringBuilder(); ////后端控制台: 打印至后端控制台
 
@@ -43,9 +45,10 @@ public class AsyncService {
                     /**
                      * 调用service层averageHash方法来获取图片的hash值
                      */
-                    String hash = imageHashService.averageHash(image);
+                    String ahash = imageaHashService.averageHash(image);
+                    String phash = imagepHashService.perceptualHash(image);
 
-                    String res = importService.upload(file, hash, md5, relativePath);
+                    String res = importService.upload(file, ahash, phash,md5, relativePath);
 
                     systemResult.append(res); ////后端控制台: 打印至后端控制台
                     /**

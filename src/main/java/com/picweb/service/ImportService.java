@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import java.io.File;
 import java.io.IOException;
 
@@ -28,7 +29,7 @@ public class ImportService {
     @Autowired
     private ImageHashDao ImageHashDao;
 
-    public String upload(MultipartFile file,  String hash, String MD5,String relativePath){
+    public String upload(MultipartFile file, String ahash, String phash,String MD5, String relativePath){
         StringBuilder  url = new StringBuilder("E:\\新建文件夹\\(0待上传\\");
         if (file.isEmpty()) {
             return "文件为空，请选择一个文件上传。"; //这里返回后直接跳出函数，不执行之后的语句
@@ -43,7 +44,7 @@ public class ImportService {
         // 保存图源信息到到数据库
         url.append(relativePath);
 
-        ImageHashEntity imageHashEntity = new ImageHashEntity(MD5, hash, url.toString());
+        ImageHashEntity imageHashEntity = new ImageHashEntity(MD5, ahash, phash,url.toString());
         ImageHashDao.save(imageHashEntity);
 
         return "已导入图源：" + relativePath;

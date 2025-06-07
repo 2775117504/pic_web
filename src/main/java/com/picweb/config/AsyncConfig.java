@@ -23,8 +23,8 @@ public class AsyncConfig {
     @Bean(name = "taskExecutors") // 创建一个线程池，需手动为异步方法添加 @Async("taskExecutor")注解
     public Executor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(16);         // 核心线程数
-        executor.setMaxPoolSize(16);         // 最大线程数
+        executor.setCorePoolSize(100);         // 核心线程数
+        executor.setMaxPoolSize(100);         // 最大线程数
         executor.setQueueCapacity(2000);      // 队列容量
         executor.setThreadNamePrefix("Async-Executor-");
         /*executor.setTaskDecorator(new ContextCopyingTaskDecorator()); // 可选：保留请求上下文*/
