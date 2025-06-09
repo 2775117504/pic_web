@@ -196,18 +196,18 @@
             text-align: center;
             /*flex-direction: column;*/
         ">
-            将图源拖入此处导入
+            将图片拖入此处上传
         </div>
     </form>
 
     <form id="uploadForm2" method="POST" action="/imageUpload" enctype="multipart/form-data" class="uploadForm2"> <!--上传本地图片或url并提交-->
         <div>
             <div class="custom-file-input">
-                <input type="file" id="customFile" name="Image"  multiple><!--“file"与后端的@RequestParam("file")-保持一致-->
-                <label for="customFile" >Select &nbsp; Image</label>           <!--webkitdirectory：允许用户选择一个文件夹，并递归获取该文件夹下的所有文件。-->
+                <input type="file" id="ImageId" name="Image"  multiple><!--“file"与后端的@RequestParam("file")-保持一致-->
+                <label for="ImageId" >Select &nbsp; Image</label>           <!--webkitdirectory：允许用户选择一个文件夹，并递归获取该文件夹下的所有文件。-->
             </div>                                                        <!--multiple：       允许多个文件选择（在某些浏览器下配合 webkitdirectory 使用）。-->
 
-            <input type="text" name="Url" id="" class="urlInput" placeholder="Input &nbsp; Url" title="请输入图片链接">
+            <input type="text" name="Url" id="urlId" class="urlInput" placeholder="导入图源" title="请输入图片链接">
             <button type="submit" style="font-weight: bolder;">提交</button>
         </div>
     </form>
@@ -222,10 +222,9 @@
 <div class="yulan">  <!--//  图片预览-->
    <div id="yulan"></div>
 </div>
-
 <script>
 /*
-====================================================================拖拽功能:图源导入的前端js实现====================================================================
+====================================================================拖拽图片上传功能:前端js实现====================================================================
 */
 //--拖拽功能的监听事件
     const dropZone = document.getElementById("dropZone");
@@ -324,7 +323,7 @@
 
         // 获取所有文件的 relativePath 并附加到 formData
         imageFiles.forEach(file => {
-            formData.append("relativePath", file.relativePath); // 多个值一起发送
+            formData.append("relativePath", file.relativePath);
         });
 
         fetch("/imageSourceUpload", {   // 这里是你后端的上传接口地址
@@ -380,10 +379,10 @@
 
 
 /*
-==================================================================上传功能:图片上传的前端js实现===================================================================
+==================================================================图片上传和图源导入功能:前端js实现===================================================================
 */
 //1、图片预览功能js实现
-    document.getElementById('customFile').addEventListener('change', function () {
+    document.getElementById('ImageId').addEventListener('change', function () {
         document.getElementById('erro').innerText = '';
         const files = this.files; /*// 获取所有选中的文件*/
         const yulanimg = document.getElementById('yulan');
@@ -419,6 +418,7 @@
         });
         document.getElementById('erro').innerText = '成功扫描'+j+'个图片,'+'有'+i+'个非图片';
     });
+
 //2、仅作用于前端的异步功能实现
     document.getElementById('uploadForm2').addEventListener('submit', function (e) {
         e.preventDefault();
@@ -427,6 +427,9 @@
         const formData = new FormData(this);
         const Images = formData.getAll('Image')
         const Urls = formData.getAll('Url')
+
+        document.getElementById("ImageId").value="";
+        document.getElementById("urlId").value="";
 
         fetch("/imageUpload", {
             method: "POST",

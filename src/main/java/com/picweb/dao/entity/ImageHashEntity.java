@@ -44,12 +44,12 @@ public ImageHashEntity(String MD5, String ahash, String phash, String url) {
         this.MD5 = MD5;
     }
 
-    public String getHash() {
+    public String getAHash() {
         return ahash;
     }
 
-    public void setHash(String hash) {
-        this.ahash = hash;
+    public void setAHash(String ahash) {
+        this.ahash = ahash;
     }
 
     public String getUrl() {

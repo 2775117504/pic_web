@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * =========================这是一个上传图片的核心业务服务层(上传服务器的直接实现)==========================
@@ -25,10 +26,25 @@ public class UploadService {
      *    hash(批量)上传图片的函数
      */
     @Autowired
-    private ImageHashDao ImageHashDao;
-    public String upload(MultipartFile file,  String ahash, String phash,String MD5){
+    private ImageHashDao imageHashDao;
+    public String upload(MultipartFile file, String ahash, String phash, String MD5){
         if (file.isEmpty()) {
             return "文件为空，请选择一个文件上传。";
+        }
+        if (imageHashDao.existsById(MD5)) {
+            return "文件已存在：" + file.getOriginalFilename();
+        }
+        // 获取所有已存储的图片哈希
+        List<ImageHashEntity> all = imageHashDao.findAll();
+
+        // 循环遍历每个哈希
+        for (ImageHashEntity entity : all) {
+            String sqlAHash = entity.getAHash();
+            double hamming = ImageaHashService.hammingDistance(sqlAHash, ahash);
+            if ( hamming >= 80.0 ){
+                return "相似图:"+entity.getUrl()+"相似度:"+hamming;
+            }
+
         }
 
         try {
@@ -43,10 +59,9 @@ public class UploadService {
 
             /**
              * 等价于 ImageHashDao.save(new ImageHashEntity(MD5, hash));
-             *
              */
             ImageHashEntity imageHashEntity = new ImageHashEntity(MD5, ahash, phash);
-            ImageHashDao.save(imageHashEntity);
+            imageHashDao.save(imageHashEntity);
 
             return "文件上传成功：" + file.getOriginalFilename();
 
