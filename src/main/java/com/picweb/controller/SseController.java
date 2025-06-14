@@ -1,5 +1,7 @@
 package com.picweb.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
@@ -45,6 +48,12 @@ public class SseController {
     // 提供给 UploadController 调用的方法
     @Autowired
     private Executor taskExecutor; // 使用你定义的线程池
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    public void sendMessageToAllClients(Map<String, Object> message) throws JsonProcessingException {
+        String jsonMessage = objectMapper.writeValueAsString(message);
+        sendMessageToAllClients(jsonMessage);
+    }
 
     public void sendMessageToAllClients(String message) {
         List<SseEmitter> deadEmitters = new ArrayList<>();

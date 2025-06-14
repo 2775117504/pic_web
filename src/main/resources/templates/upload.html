@@ -110,13 +110,7 @@
             left: 4px;
 
         }
-        .yulan {
-            width: 100%;
-            height: 2000px;
-            border: rgba(255, 255, 255, 0.5) 1px solid;
 
-
-        }
 /*!*        .yulan  img {
             display: flex; !*!/ 弹性布局*!
             align-items: center; !*!/ 垂直居中*!
@@ -167,10 +161,14 @@
              /*border: white  1px solid;*/
              margin: 2px auto;
              width: 100%;
-
-
          }
+        .yulan {
+            width: 98%;
+            height: auto;
+            border: rgba(255, 255, 255, 0.5) 1px solid;
+            padding: 1%;
 
+        }
     </style>
 </head>
 <body>
@@ -212,16 +210,20 @@
         </div>
     </form>
 
-    <div class="logForm" id="logForm">
-
-    </div>
+    <div class="logForm" id="logForm"></div>
 </div>
 
 <div id="erro" style="color: #be1a1a"></div> <!--// 错误提示-->
 
-<div class="yulan">  <!--//  图片预览-->
+<div class="yulan">  <!--//图片预览-->
    <div id="yulan"></div>
 </div>
+<!--
+<img style="width: 100px" src="/img/图\sword art online 2014 calendar\001.jpg" alt="" title="F盘">
+<img style="width: 100px" src="/img/chikotam - innocent bloom -イノセントブルーム-/001.png" alt="" title="E盘">
+<img style="width: 100px" src="/img/CLAMP\MUTUALITY  CLAMP works in CODE GEASS\001.jpg" alt="" title="E盘">
+<img style="width: 100px" src="/img/Users\lenovo\Desktop\图包\新建文件夹 (2)\新建文件夹 (3)\F3Zrr06bcAA5Tq1.jpg" alt="" title="C盘"></img>
+-->
 <script>
 /*
 ====================================================================拖拽图片上传功能:前端js实现====================================================================
@@ -356,11 +358,61 @@
     function connectToSSE() {
         const eventSource = new EventSource("/uploadProgress?nocache=" + Math.random());
 
-        eventSource.onmessage = function(event) {
+        eventSource.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+
             const logDiv = document.getElementById("logForm");
             logDiv.style.color = "rgba(234,234,234,0.89)";
-            logDiv.innerHTML += event.data + "<br>";
-            logDiv.scrollTop = logDiv.scrollHeight;
+            logDiv.innerHTML += data.Message + "<br>";
+            logDiv.scrollTop = logDiv.scrollHeight; //  滚动到底部
+            /*if (data.startsWith("上传完成")) {
+                eventSource.close();
+            }*/
+            const resultDiv = document.createElement("div");
+            resultDiv.style.border = "1px solid red";
+            resultDiv.style.width = '100%';
+            resultDiv.style.backgroundColor = "rgba(255,255,255,0.1)";
+            similarImage(data.ImgName,resultDiv);
+            if (data.Message.startsWith("匹配到相似图")) {
+                const yulan = document.getElementById('yulan');
+                for (let i = 0; i < data.SourceUrl.length; i++){
+
+                    if (data.SourceUrl[i]==="noimage"){
+                        const img = document.createElement("img");
+                        img.src = "/Logo/NoImage.jpg";
+                        img.style.width = '120px';
+                        img.style.height = '190px';
+                        img.style.margin = '10px';
+                        img.style.border = '1px solid white';
+                        img.style.display = 'block';
+                        img.title="数据库无路径保存";
+                        img.style.border = "1px solid white";
+                        img.style.display = 'inline-block';
+                        img.style.objectFit='contain';
+                        resultDiv.appendChild(img);
+                    }else{
+                        const img = document.createElement("img");
+                        img.src = "/img/"+data.SourceUrl[i]; /*表示 FileReader 已经读取完文件后返回的数据（通常是 Base64 编码的图片数据）*/
+                        img.style.width = '120px';
+                        img.style.height = '190px';
+                        img.style.margin = '10px';
+                        img.style.border = '1px solid white';
+                        img.style.display = 'block';
+                        img.title = data.SourceUrl[i];
+                        img.style.border = "1px solid white";
+                        img.style.display = 'inline-block';
+                        img.style.objectFit='contain';
+                        img.onerror=function(){
+                            img.src = "/Logo/NoImage.jpg";
+                            img.title="本地资源已删除";
+                        }
+                        resultDiv.appendChild(img);
+                    }
+                    yulan.appendChild(resultDiv);
+                }
+            }else{
+
+            }
         };
 
         eventSource.onerror = function(err) {
@@ -381,12 +433,32 @@
 /*
 ==================================================================图片上传和图源导入功能:前端js实现===================================================================
 */
+    function similarImage(filename,resultDiv){
+        const file=imageBase64.get(filename);  // 获取图片源文件
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.width = '180px';
+            img.style.height = '210px';
+            img.style.margin = '0px';
+            img.style.border = '1px solid rgba(255,255,255,0.3)';
+            img.style.display = 'inline-block';
+            img.style.objectFit='contain';
+            img.style.boxShadow='0 0 10px rgba(255, 255, 255, 0.3) inset';
+            resultDiv.prepend(img);
+        };
+        reader.readAsDataURL(file);
+    }
+
 //1、图片预览功能js实现
+    const imageBase64 = new  Map(); //存储函数base数据
     document.getElementById('ImageId').addEventListener('change', function () {
         document.getElementById('erro').innerText = '';
-        const files = this.files; /*// 获取所有选中的文件*/
+        const files = this.files;      /* 获取所有选中的文件*/
         const yulanimg = document.getElementById('yulan');
-        yulanimg.innerHTML = ''; /*// 清空之前的预览*/
+        yulanimg.innerHTML = '';       /* 清空之前的预览*/
 
         if (files.length === 0) {
             return;
@@ -394,23 +466,26 @@
 
         // 遍历每个文件
         let i=0,j=0;
-        Array.from(files).forEach(file => {
+        Array.from(files).forEach(file => {  //转化成数组并遍历
             if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
+                imageBase64.set(file.name,file);
 
-                reader.onload = function (e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.maxWidth = '180px';
-                    img.style.margin = '35px';
-                    img.style.marginBottom = '90px';
-                    img.style.border = '1px solid white';
-                    img.style.display = 'inline-block';
-
-                    yulanimg.appendChild(img);
-                };
-
-                reader.readAsDataURL(file);
+                // const reader = new FileReader(); //FileReader 是浏览器提供的 API，用于异步读取文件内容
+                //
+                // reader.onload = function (e) {
+                //     const img = document.createElement('img');
+                //     img.src = e.target.result; /*表示 FileReader 已经读取完文件后返回的数据（通常是 Base64 编码的图片数据）*/
+                //     img.style.width = '180px';
+                //     img.style.height = '210px';
+                //     img.style.margin = '0px';
+                //     img.style.marginBottom = '60px';
+                //     img.style.border = '1px solid rgba(255,255,255,0.3)';
+                //     img.style.display = 'inline-block';
+                //     img.style.objectFit='contain';
+                //     img.style.boxShadow='0 0 10px rgba(255, 255, 255, 0.3) inset';
+                //     yulanimg.appendChild(img);
+                // };
+                // reader.readAsDataURL(file); //读取为 Base64 编码的 Data URL，读取完触发调用上面的函数，是这么个顺序。
                 j+=1;
             }else{
                 i+=1;
@@ -419,9 +494,9 @@
         document.getElementById('erro').innerText = '成功扫描'+j+'个图片,'+'有'+i+'个非图片';
     });
 
-//2、仅作用于前端的异步功能实现
+//2、仅作用于前端的异步功能实现: 用 Fetch API 做局部刷新
     document.getElementById('uploadForm2').addEventListener('submit', function (e) {
-        e.preventDefault();
+        e.preventDefault(); // 阻止表单默认提交
         document.getElementById("logForm").innerHTML = "";
 
         const formData = new FormData(this);

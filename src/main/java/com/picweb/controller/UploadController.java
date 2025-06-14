@@ -2,21 +2,23 @@ package com.picweb.controller;
 
 import com.picweb.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Controller     /*用于标记一个类是 Spring MVC 控制器（Controller），主要负责接收和处理 HTTP 请求，不会自动转为响应体*/
 
@@ -33,6 +35,54 @@ public class UploadController {
         System.out.println("刷新了一次主页");
         return "upload";
     }
+
+    /**
+     * **********************************  Controller层 动态返回图片  !!!!!!!!!!!!!!!!  ***********************************
+     */
+    @GetMapping("/im/{user}")
+    public ResponseEntity<Resource> getImg(@PathVariable String user) throws IOException { //URL 中有具体资源名用@PathVariable
+        System.out.println("这是：@GetMapping(\"/im/{user}\")"+user);
+
+        int lastIndex = user.lastIndexOf('\\');
+        if (lastIndex != -1) {
+            String headPath = user.substring(0, lastIndex);
+            String fileName = user.substring(lastIndex + 1);
+        }
+        // 定义支持的图片扩展名和对应 MediaType
+        Map<String, MediaType> imageExt = new HashMap<>();
+        imageExt.put(".jpg", MediaType.IMAGE_JPEG);
+        imageExt.put(".jpeg", MediaType.IMAGE_JPEG);
+        imageExt.put(".png", MediaType.IMAGE_PNG);
+        imageExt.put(".gif", MediaType.IMAGE_GIF);
+        imageExt.put(".bmp", MediaType.valueOf("image/bmp"));
+        imageExt.put(".webp", MediaType.valueOf("image/webp"));
+
+        // 尝试匹配支持的图片格式
+        MediaType mediaType = null;
+        Path imagePath = null;  //传统 File 类的 Plus 版本！
+
+        for (Map.Entry<String, MediaType> entry : imageExt.entrySet()) {
+            String ext = entry.getKey(); //获取键
+            Path tryPath = Paths.get(user);
+            if (Files.exists(tryPath)) {  //判断文件是否存在
+                imagePath = tryPath;
+                mediaType = entry.getValue();
+                break;
+            }
+        }
+        // 如果没有找到任何匹配的图片文件
+        if (imagePath == null || mediaType == null) {
+            throw new FileNotFoundException("找不到该用户对应的图片：" + user);
+        }
+        // 使用 Resource 包装文件输入流
+        Resource resource = new InputStreamResource(Files.newInputStream(imagePath));
+        // 返回响应
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .body(resource);
+    }
+
+
 
     @Autowired             /*自动注入使用service层的uploadService类*/
     private UploadService uploadService;
@@ -53,7 +103,7 @@ public class UploadController {
     @Autowired
     private ImportImageMd5Service importImageMd5Service;
 
-    /*======================================================================上传图片的控制器=================================================================*/
+    /*======================================================================以拖拽形式上传图片的控制器=================================================================*/
     @PostMapping("/imageSourceUpload")
     @ResponseBody
     public String ImageSourceUpload(@RequestParam("ImageSource") MultipartFile[] files,  //<<<-----RequestParam连个值对应前端formdata的两个键(key),没错还可以这么用
@@ -146,11 +196,11 @@ public class UploadController {
             for (String imagePath : imagePaths) {
                 File file = new File(imagePath);
                 BufferedImage image = ImageIO.read(file);
-                asyncService.ImportAsync(image, imagePath,importImageMd5Service.getMD5(file));
+                asyncService.ImportAsync(image, imagePath,importImageMd5Service.getMD5(file),url);
             }
         }
 
-        /*===============================================上传图片的控制器===================================================*/
+        /*===============================================以选择文件方式上传图片的控制器===================================================*/
         else if (files != null && Arrays.stream(files).anyMatch(file -> !file.isEmpty())) {
             System.out.println("进入了文件不为空的elseif语句："+files);
             System.out.println("进入了文件不为空的elseif语句："+files.length);
@@ -178,7 +228,7 @@ public class UploadController {
                 /**
                  *调用service层upload方法
                  **/
-                String res = uploadService.upload(file, ahash, phash, md5);
+                Map<String, Object> res = uploadService.upload(file, ahash, phash, md5);
                 sseController.sendMessageToAllClients(res);
             }
         }else {
@@ -187,7 +237,7 @@ public class UploadController {
         /**
         *sse所有消息逐步推送完成后的最终输出
         */
-        sseController.sendMessageToAllClients("图片上传完成！");
+//        sseController.sendMessageToAllClients("图片上传完成！");
         return "OK";
     }
 }
