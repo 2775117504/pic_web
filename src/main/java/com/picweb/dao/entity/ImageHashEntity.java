@@ -25,10 +25,11 @@ public ImageHashEntity(String MD5, String ahash, String phash, String url,  Inte
     this.headurl = headurl;
 }
 
-    public ImageHashEntity(String MD5, String ahash, String phash) {
+    public ImageHashEntity(String MD5, String ahash, String phash,  String url) {
         this.MD5 = MD5;
         this.ahash = ahash;
         this.phash = phash;
+        this.url = url;
     }
 
     public ImageHashEntity() {

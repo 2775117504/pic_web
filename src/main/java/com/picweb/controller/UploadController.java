@@ -32,6 +32,7 @@ public class UploadController {
     //  上传页面
     @GetMapping("/upload")
     public String uploadPage() {
+        System.out.println("/////////////////////////////////////////////////////////////////////////////////////////////////////////////");
         System.out.println("刷新了一次主页");
         return "upload";
     }

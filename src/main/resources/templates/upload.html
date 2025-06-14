@@ -359,7 +359,7 @@
         const eventSource = new EventSource("/uploadProgress?nocache=" + Math.random());
 
         eventSource.onmessage = function(e) {
-            const data = JSON.parse(e.data);
+            const data = JSON.parse(e.data);  // 解析为JSON数据
 
             const logDiv = document.getElementById("logForm");
             logDiv.style.color = "rgba(234,234,234,0.89)";
@@ -372,41 +372,90 @@
             resultDiv.style.border = "1px solid red";
             resultDiv.style.width = '100%';
             resultDiv.style.backgroundColor = "rgba(255,255,255,0.1)";
-            similarImage(data.ImgName,resultDiv);
+            similarImage(data.ImgName,resultDiv); // 调用显示被配对图片的函数
             if (data.Message.startsWith("匹配到相似图")) {
-                const yulan = document.getElementById('yulan');
-                for (let i = 0; i < data.SourceUrl.length; i++){
+                function sortByUrlSimilarity(sourceUrls, hanmings) {  //  对相似度降序排序的函数
+                    let combined = sourceUrls.map((url, i) => ({ url, hanming: hanmings[i] }));
+                    let sorted = combined.sort((a, b) => b.hanming - a.hanming);
 
-                    if (data.SourceUrl[i]==="noimage"){
+                    // 将 key 改为 SourceUrl 和 Hanming
+                    return sorted.map(({ url, hanming }) => ({
+                        SourceUrl: url,
+                        Hanming: hanming
+                    }));
+                }
+                const sorted = sortByUrlSimilarity(data.SourceUrl, data.Hanming);
+
+                const yulan = document.getElementById('yulan');
+                for (let i = 0; i < sorted.length; i++){
+
+                    if (!sorted[i].SourceUrl.includes("\\")){
                         const img = document.createElement("img");
-                        img.src = "/Logo/NoImage.jpg";
+                        img.src = "/uploads/"+sorted[i].SourceUrl;
+                        img.title=sorted[i].SourceUrl;
                         img.style.width = '120px';
                         img.style.height = '190px';
                         img.style.margin = '10px';
                         img.style.border = '1px solid white';
                         img.style.display = 'block';
-                        img.title="数据库无路径保存";
                         img.style.border = "1px solid white";
                         img.style.display = 'inline-block';
                         img.style.objectFit='contain';
-                        resultDiv.appendChild(img);
+
+                        const label = document.createElement("span");
+                        label.innerText  = sorted[i].Hanming+"%";
+                        label.style.position = "absolute";
+                        label.style.bottom = "0px";
+                        label.style.right = "4px";
+                        label.style.color = "rgba(255,255,255,0.75)"
+                        label.style.padding = "0px 8px";
+                        label.style.fontSize = "12px";
+                        label.style.zIndex = "10";
+                        label.style.pointerEvents = "none"; // 避免影响点击图片
+
+                        const div = document.createElement("div");
+                        div.style.position = "relative";
+                        div.style.display = "inline-block";
+                        div.appendChild(img);
+                        div.appendChild(label);
+
+                        resultDiv.appendChild(div);
                     }else{
+                        const SourceUrl = sorted[i].SourceUrl.substring(3);
                         const img = document.createElement("img");
-                        img.src = "/img/"+data.SourceUrl[i]; /*表示 FileReader 已经读取完文件后返回的数据（通常是 Base64 编码的图片数据）*/
+                        img.src = "/img/"+SourceUrl /*表示 FileReader 已经读取完文件后返回的数据（通常是 Base64 编码的图片数据）*/
+                        img.title = sorted[i].SourceUrl;
                         img.style.width = '120px';
                         img.style.height = '190px';
                         img.style.margin = '10px';
                         img.style.border = '1px solid white';
                         img.style.display = 'block';
-                        img.title = data.SourceUrl[i];
                         img.style.border = "1px solid white";
                         img.style.display = 'inline-block';
                         img.style.objectFit='contain';
+
+                        const label = document.createElement("span");
+                        label.innerText  = sorted[i].Hanming+"%";
+                        label.style.position = "absolute";
+                        label.style.bottom = "0px";
+                        label.style.right = "4px";
+                        label.style.color = "rgba(255,255,255,0.75)"
+                        label.style.padding = "0px 8px";
+                        label.style.fontSize = "12px";
+                        label.style.zIndex = "10";
+                        label.style.pointerEvents = "none"; // 避免影响点击图片
+
+                        const div = document.createElement("div");
+                        div.style.position = "relative";
+                        div.style.display = "inline-block";
+                        div.appendChild(img);
+                        div.appendChild(label);
+
                         img.onerror=function(){
                             img.src = "/Logo/NoImage.jpg";
                             img.title="本地资源已删除";
                         }
-                        resultDiv.appendChild(img);
+                        resultDiv.appendChild(div);
                     }
                     yulan.appendChild(resultDiv);
                 }
@@ -433,7 +482,7 @@
 /*
 ==================================================================图片上传和图源导入功能:前端js实现===================================================================
 */
-    function similarImage(filename,resultDiv){
+    function similarImage(filename,resultDiv){  //  显示被配对图片的函数
         const file=imageBase64.get(filename);  // 获取图片源文件
 
         const reader = new FileReader();

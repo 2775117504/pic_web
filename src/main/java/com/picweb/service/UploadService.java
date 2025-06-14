@@ -82,7 +82,8 @@ public class UploadService {
     public Map<String, Object> upload(MultipartFile file, String ahash, String phash, String MD5){
         Map<String, Object> map = new HashMap<>();
         List<String> urls = new ArrayList<>();
-        List<Double> hanmings = new ArrayList<>();
+        List<String> hanmings = new ArrayList<>();
+        Map<List<String>, List<Double>> UAndH = new HashMap<>();
 
 
         if (file.isEmpty()) {
@@ -102,17 +103,18 @@ public class UploadService {
 
             String sqlPhash = entity.getPhash();
             double hamming = ImageaHashService.hammingDistance(sqlPhash, phash);
-            System.out.println("相似度：" + hamming);
+//            System.out.println("相似度：" + hamming);
             if (hamming >= 55.0) {
-                if (entity.getUrl()==null){
-                    urls.add("noimage");
-                }else {
+                /*if (entity.getUrl().contains("\\")){
                     String sqlUrl = entity.getUrl().substring(3);
                     urls.add(sqlUrl);
                     hanmings.add(hamming);
-                }
+                }else {*/
+                urls.add(entity.getUrl());
+                hanmings.add(String.format("%.2f", hamming)); //保留两位小数
             }
             if (i == all.size() - 1 && !urls.isEmpty()) {
+
                 map.put("SourceUrl", urls);
                 map.put("Hanming", hanmings);
                 map.put("Message", "匹配到相似图："+  file.getOriginalFilename());
@@ -135,7 +137,7 @@ public class UploadService {
             /**
              * 等价于 ImageHashDao.save(new ImageHashEntity(MD5, hash));
              */
-            ImageHashEntity imageHashEntity = new ImageHashEntity(MD5, ahash, phash);
+            ImageHashEntity imageHashEntity = new ImageHashEntity(MD5, ahash, phash, file.getOriginalFilename());
             imageHashDao.save(imageHashEntity);
 
             map.put("Message", "文件上传成功：" + file.getOriginalFilename());
