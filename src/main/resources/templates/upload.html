@@ -169,6 +169,11 @@
             padding: 1%;
 
         }
+        #plus:hover {
+            background-color: #45a049;
+            transform: scale(1.1); /* 放大一点 */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -296,7 +301,7 @@
             const formData = new FormData();
             let i = 0;
             let n = 0;
-
+            //获取所有图片文件 并附加到 formData
             imageFiles.forEach(file => {
                 if (file.type.startsWith('image/')) {
                     formData.append("ImageSource", file);
@@ -304,6 +309,10 @@
                 } else {
                     n++;
                 }
+            });
+            // 获取所有文件的 relativePath 并附加到 formData
+            imageFiles.forEach(file => {
+                formData.append("relativePath", file.relativePath);
             });
 
             document.getElementById('erro').innerText =
@@ -319,14 +328,9 @@
 
 
     /*仅作用于前端的异步上传函数（使用 fetch链式结构）*/
-    function uploadFiles(imageFiles, formData) {
+    function uploadFiles(formData) {
         // 清空历史日志（考虑是否存于本地日志）
         document.getElementById("logForm").innerHTML = "";
-
-        // 获取所有文件的 relativePath 并附加到 formData
-        imageFiles.forEach(file => {
-            formData.append("relativePath", file.relativePath);
-        });
 
         fetch("/imageSourceUpload", {   // 这里是你后端的上传接口地址
             method: "POST",
@@ -360,7 +364,7 @@
 
         eventSource.onmessage = function(e) {
             const data = JSON.parse(e.data);  // 解析为JSON数据
-
+            //进度显示
             const logDiv = document.getElementById("logForm");
             logDiv.style.color = "rgba(234,234,234,0.89)";
             logDiv.innerHTML += data.Message + "<br>";
@@ -368,11 +372,15 @@
             /*if (data.startsWith("上传完成")) {
                 eventSource.close();
             }*/
+            //单张图片对比结果显示
             const resultDiv = document.createElement("div");
             resultDiv.style.border = "1px solid red";
             resultDiv.style.width = '100%';
             resultDiv.style.backgroundColor = "rgba(255,255,255,0.1)";
-            similarImage(data.ImgName,resultDiv); // 调用显示被配对图片的函数
+            resultDiv.style.position  = "relative";
+            // 调用显示被配对图片的函数
+            similarImage(data.ImgName,resultDiv);
+            //输出显示相似结果图
             if (data.Message.startsWith("匹配到相似图")) {
                 function sortByUrlSimilarity(sourceUrls, hanmings) {  //  对相似度降序排序的函数
                     let combined = sourceUrls.map((url, i) => ({ url, hanming: hanmings[i] }));
@@ -433,7 +441,7 @@
                         img.style.border = "1px solid white";
                         img.style.display = 'inline-block';
                         img.style.objectFit='contain';
-
+                        //添加缩略状态相似度显示
                         const label = document.createElement("span");
                         label.innerText  = sorted[i].Hanming+"%";
                         label.style.position = "absolute";
@@ -457,13 +465,23 @@
                         }
                         resultDiv.appendChild(div);
                     }
-                    yulan.appendChild(resultDiv);
                 }
-            }else{
-
+                //展开的按钮显示样式
+                const plus=document.createElement("span");
+                plus.innerText="+";
+                plus.style.position = "absolute";
+                plus.style.bottom = "-4px";
+                plus.style.right = "4px";
+                plus.style.color = "rgba(255,255,255,0.75)"
+                plus.style.cursor="pointer";
+                plus.style.fontSize = "24px";
+                plus.className="plus";
+                plus.dataset.imgname=data.ImgName; //为每个plus绑定唯一标识
+                resultDiv.appendChild(plus);
+                yulan.appendChild(resultDiv);
             }
-        };
 
+        };
         eventSource.onerror = function(err) {
             console.error("SSE 出错:", err);
             eventSource.close();
@@ -477,13 +495,57 @@
 
     // 页面加载时开始监听 SSE
     connectToSSE();
+/*
+====================================================================“+”展开功能的js实现============================================================================
+*/
+    document.addEventListener('click', function(e) {
+        if (e.target.className=="plus"){
+            alert(`点击了按钮：${e.target.dataset.imgname}`); //反引号！！！
+            const allimages= e.target.parentElement.querySelectorAll("img");  // 获取当前容器下的所有 img（不是全局）
+            //大单元：一个div包一个结果
+            const div=document.createElement("div");
+            div.style.border="1px solid white";
+            div.style.display="flex";
+            //中单元：把被配对图也加入一div内
+            const resultDiv = e.target.parentElement; // 获取当前点击按钮的父元素
+            resultDiv.style.width="210px";
+            resultDiv.style.border="1px solid white";
+            div.appendChild(resultDiv);
+            //中单元：单张结果图合集div
+            const div2 = document.createElement("div");
+            div2.style.border="1px solid white";
+            div2.style.width="900px";
+            for (let i = 1; i < allimages.length; i++) {
+                //小单元：每一张相似图
+                const blockdiv=document.createElement("div");
+                blockdiv.style.backgroundColor = "rgb(52,52,52)";
+                blockdiv.style.margin="4px 0px 4px 4px";
+                allimages[i].style.height= 'auto';
+                blockdiv.appendChild(allimages[i]);
+                div2.appendChild(blockdiv);
+            }
+            div.appendChild(div2);
+
+            const yulan = document.getElementById("yulan");
+            yulan.appendChild(div);
+
+            const divs = e.target.parentElement.querySelectorAll("div");
+            divs.forEach(div => {
+                if (div.querySelector("span")) {
+                    // 如果 div 中包含 span，则删除该 div
+                    div.remove();
+                }
+            });
+        }
+    });
 
 
 /*
 ==================================================================图片上传和图源导入功能:前端js实现===================================================================
 */
-    function similarImage(filename,resultDiv){  //  显示被配对图片的函数
-        const file=imageBase64.get(filename);  // 获取图片源文件
+    //  显示被配对图片的函数
+    function similarImage(filename,resultDiv){
+        const file=imageBase64.get(filename);  // imageBase64作为Map类型获取保存在内的图片源文件
 
         const reader = new FileReader();
         reader.onload = function (e) {
@@ -494,11 +556,64 @@
             img.style.margin = '0px';
             img.style.border = '1px solid rgba(255,255,255,0.3)';
             img.style.display = 'inline-block';
-            img.style.objectFit='contain';
-            img.style.boxShadow='0 0 10px rgba(255, 255, 255, 0.3) inset';
-            resultDiv.prepend(img);
+            img.style.objectFit='contain'; //  图片填充方式
+            img.style.objectPosition='left center'; // 图片填充位置
+            img.style.marginLeft='0px';
+            img.title=filename;
+            // img.style.boxShadow='0 0 10px rgba(255, 255, 255, 0.3) inset';
+
+
+            // 上传按钮
+            const uploadBtn = document.createElement('button');
+            uploadBtn.textContent = '上传';
+            uploadBtn.style.marginTop = '5px';
+            uploadBtn.style.marginRight = '5px';
+            uploadBtn.style.backgroundColor = '#4CAF50';
+            uploadBtn.style.color = 'white';
+            uploadBtn.style.border = 'none';
+            uploadBtn.style.padding = '5px 10px';
+            uploadBtn.style.cursor = 'pointer';
+            uploadBtn.onclick = function (e) {
+                const imgfile =e.target.parentElement.querySelector('img');
+                const filename = imgfile.title;
+                const file = imageBase64.get(filename); // 以文件名为索引从Map保存的数据中获取图片源文件
+                const formData = new FormData();
+                // formData.append("relativePath", filename);
+                formData.append("Image", file);
+                fetch('/imageReUpload', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("文件重上传成功！");
+                    })
+                    .catch(error => {
+                        console.error('文件重新上传错误:', error);
+                    });
+                e.target.parentElement.remove();
+            };
+
+            // 删除按钮
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = '删除';
+            deleteBtn.style.marginTop = '5px';
+            deleteBtn.style.backgroundColor = '#f44336';
+            deleteBtn.style.color = 'white';
+            deleteBtn.style.border = 'none';
+            deleteBtn.style.padding = '5px 10px';
+            deleteBtn.style.cursor = 'pointer';
+            deleteBtn.onclick = function (e) {
+               e.target.parentElement.remove();
+            };
+            // 将图片和按钮放入容器
+            resultDiv.appendChild(img);
+            resultDiv.appendChild(uploadBtn);
+            resultDiv.appendChild(deleteBtn);
+
+            resultDiv.prepend(img); // 将图片放在最前面
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file); // 将文件转换为 base64触发onload 事件
     }
 
 //1、图片预览功能js实现

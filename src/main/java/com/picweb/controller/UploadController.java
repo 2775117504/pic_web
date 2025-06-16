@@ -1,5 +1,7 @@
 package com.picweb.controller;
 
+import com.picweb.dao.ImageHashDao;
+import com.picweb.dao.entity.ImageHashEntity;
 import com.picweb.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -159,11 +161,11 @@ public class UploadController {
 
     }
 
-    /*==================================================导入图源的控制器=====================================================*/
+    /*===========================================================导入图源的控制器===================================================================*/
     @PostMapping("/imageUpload")
     @ResponseBody          /*将方法的返回值直接写入 HTTP 响应体中，而不是作为视图名称解析。*/
-    public String ImageUpdate(@RequestParam("Image") MultipartFile[] files,
-                              @RequestParam("Url") String url) throws Exception {
+    public String ImageUpdate(@RequestParam(name="Image", required = false) MultipartFile[] files,  //设置false为非必要性传入参数
+                              @RequestParam(name="Url", required = false) String url) throws Exception {
 
 /**
  例子
@@ -201,7 +203,7 @@ public class UploadController {
             }
         }
 
-        /*===============================================以选择文件方式上传图片的控制器===================================================*/
+        /*==========================================================以选择文件方式上传图片的控制器=======================================================*/
         else if (files != null && Arrays.stream(files).anyMatch(file -> !file.isEmpty())) {
             System.out.println("进入了文件不为空的elseif语句："+files);
             System.out.println("进入了文件不为空的elseif语句："+files.length);
@@ -240,5 +242,51 @@ public class UploadController {
         */
 //        sseController.sendMessageToAllClients("图片上传完成！");
         return "OK";
+    }
+
+    @Autowired
+    public ImageHashDao imageHashDao;
+    @PostMapping("/imageReUpload")
+    @ResponseBody          /*将方法的返回值直接写入 HTTP 响应体中，而不是作为视图名称解析。*/
+    public Map<String, Object> ImageReUpdate(@RequestParam(name="Image", required = false) MultipartFile file) throws Exception {
+        BufferedImage image = ImageIO.read(file.getInputStream());
+        /**
+         * 调用service层calculateMD5方法来获取图片的MD5值
+         */
+        String md5 = imageMD5Service.calculateMD5(file);
+        /**
+         * 调用service层averageHash方法来获取图片的hash值
+         */
+        String ahash = imageaHashService.averageHash(image);
+        String phash = imagepHashService.perceptualHash(image);
+        /**
+         *调用service层upload方法
+         **/
+        Map<String, Object> map = new HashMap<>();
+        try {
+            String uploadDir = System.getProperty("user.dir") + "/uploads/"; //获取当前项目路径
+            File dir = new File(uploadDir); //创建上传路径
+            if (!dir.exists()) { //判断路径是否存在
+                dir.mkdirs();
+            }
+
+            String filePath = uploadDir + file.getOriginalFilename(); //获取上传文件的保存路径
+            file.transferTo(new File(filePath)); //将上传的文件保存到指定路径
+
+            /**
+             * 等价于 ImageHashDao.save(new ImageHashEntity(MD5, hash));
+             */
+            ImageHashEntity imageHashEntity = new ImageHashEntity(md5, ahash, phash, file.getOriginalFilename());
+            imageHashDao.save(imageHashEntity);
+
+            map.put("Message", "文件上传成功：" + file.getOriginalFilename());
+            sseController.sendMessageToAllClients(map);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            map.put("Message", "文件上传失败：" + e.getMessage());
+            sseController.sendMessageToAllClients(map);
+        }
+        return map;
     }
 }
