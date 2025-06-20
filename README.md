@@ -1,6 +1,8 @@
 # <div style="text-align: center;font-family: r">*PiLib*</div>
 
-[![](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/2775117504/pic_web)  
+[![](https://img.shields.io/badge/项目地址-pic_web-blue.svg)](https://github.com/2775117504/pic_web)
+![](https://img.shields.io/badge/language-java-orange.svg)
+
 - *2025-5-28 by kwtx*
 #  项目介绍
 ## 一、 基于页面的功能介绍
@@ -77,8 +79,9 @@
 ## 4. *2025-6-13 20:12:48*
 - 完成进度
 - 待处理项
-  -针对List<ImageHashEntity> all = imageHashDao.findAll();使用 局部敏感哈希（LSH）->LSH 可以将相似的哈希值映射到同一个桶中,查询时只需查找一个桶内的数据，大幅减少比对数量
-  -以缩略图形式展示图片，减少浏览器内存占用 
-  -针对第一条待处理想或加入向量索引ANN
-  -部署 CNN深度学习模型
-  -待支持webp格式图片
+  - 针对List<ImageHashEntity> all = imageHashDao.findAll();使用 局部敏感哈希（LSH）->LSH 可以将相似的哈希值映射到同一个桶中,查询时只需查找一个桶内的数据，大幅减少比对数量
+  - 以缩略图形式展示图片，减少浏览器内存占用 
+  - 针对第一条待处理想或加入向量索引ANN
+  - 部署 CNN深度学习模型
+  - 待支持webp格式图片 ✔ 
+  - 本地路径包含[]符号时上传出错

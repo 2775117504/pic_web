@@ -1,7 +1,10 @@
 package com.picweb.service;
 
 import com.picweb.dao.ImageHashDao;
+import com.picweb.dao.ImgUploadDateDao;
 import com.picweb.dao.entity.ImageHashEntity;
+import com.picweb.dao.entity.ImgUploadDateEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,14 +28,14 @@ public class UploadService {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
     }
-    /**
-     *    hash(批量)上传图片的函数
-     */
+
     public UploadService(ImageHashDao imageHashDao) {
         this.imageHashDao = imageHashDao;
     }
     private final ImageHashDao imageHashDao;
-    public Map<String, Object> upload(MultipartFile file, String ahash, String phash, String MD5){
+    @Autowired
+    private ImgUploadDateDao imgUploadDateDao;
+    public Map<String, Object> upload(MultipartFile file, String ahash, String phash, String MD5, Integer TotalCount){
         Map<String, Object> map = new HashMap<>();
         List<String> urls = new ArrayList<>();
         List<String> hanmings = new ArrayList<>();
@@ -44,7 +47,8 @@ public class UploadService {
             return map;
         }
         if (imageHashDao.existsById(MD5)) {
-            map.put("Message", "文件已存在：" + file.getOriginalFilename());
+            map.put("Message", "已存在文件: " + file.getOriginalFilename());
+            map.put("TotalCount", TotalCount);
             return map;
         }
 
@@ -70,9 +74,9 @@ public class UploadService {
 
                 map.put("SourceUrl", urls);
                 map.put("Hanming", hanmings);
-                map.put("Message", "匹配到相似图："+  file.getOriginalFilename());
+                map.put("Message", "匹配到相似图: "+  file.getOriginalFilename());
                 map.put("ImgName",file.getOriginalFilename());
-                System.out.println("map：" + map);
+                map.put("TotalCount", TotalCount);
                 return map;
             }
         }
@@ -90,15 +94,23 @@ public class UploadService {
             /**
              * 等价于 ImageHashDao.save(new ImageHashEntity(MD5, hash));
              */
-            ImageHashEntity imageHashEntity = new ImageHashEntity(MD5, ahash, phash, file.getOriginalFilename());
+            ImageHashEntity imageHashEntity = new ImageHashEntity(MD5, ahash, phash, file.getOriginalFilename(), false);
+            /**
+            从时间戳表中获取最新条数据的主键id并添加进图片数据表的外键中
+            */
+            ImgUploadDateEntity img_date = imgUploadDateDao.findLatestByDate();
+            Integer date_id = img_date.getId();
+            imageHashEntity.setImg_date_id(date_id);
             imageHashDao.save(imageHashEntity);
 
-            map.put("Message", "文件上传成功：" + file.getOriginalFilename());
+            map.put("Message", "上传成功: " + file.getOriginalFilename());
+            map.put("TotalCount", TotalCount);
             return map;
 
         } catch (IOException e) {
             e.printStackTrace();
-            map.put("Message", "文件上传失败：" + e.getMessage());
+            map.put("Message", "上传失败: " + e.getMessage());
+            map.put("TotalCount", TotalCount);
             return map;
         }
     }

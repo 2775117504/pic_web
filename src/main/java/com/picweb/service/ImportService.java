@@ -28,8 +28,9 @@ public class ImportService {
      */
     @Autowired
     private ImageHashDao imageHashDao;
-    public Map<String, Object> upload(BufferedImage file, String ahash, String phash, String MD5, String url, String headurl){
+    public Map<String, Object> upload(BufferedImage file, String ahash, String phash, String MD5, String url, String headurl, Integer TotalCount){
         Map<String, Object> map = new HashMap<>();
+
         /**
          * if (file.isEmpty()) {
          *             return "文件为空，请选择一个文件上传。"; //这里返回后直接跳出函数，不执行之后的语句
@@ -41,14 +42,16 @@ public class ImportService {
 //                dir.mkdirs();
 //            }
         if (imageHashDao.existsById(MD5)) {
-            map.put("Message", "文件已存在：" + url);
+            map.put("Message", "已存在文件: " + url);
+            map.put("TotalCount", TotalCount);
             return map;
         }
         Integer head=headurl.length()+1 ;
         // 保存图源信息到到数据库
-        ImageHashEntity imageHashEntity = new ImageHashEntity(MD5, ahash, phash,url,head);
+        ImageHashEntity imageHashEntity = new ImageHashEntity(MD5, ahash, phash,url,head,false);
         imageHashDao.save(imageHashEntity);
-        map.put("Message", "已导入图源：" + url);
+        map.put("Message", "已导入图源: " + url);
+        map.put("TotalCount", TotalCount);
         return map;
     }
 }

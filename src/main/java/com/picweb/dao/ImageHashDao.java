@@ -2,7 +2,10 @@ package com.picweb.dao;
 
 import com.picweb.dao.entity.ImageHashEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 /**
  * Spring Data JPA 已经为所有继承 JpaRepository 的接口自动加上了 @Repository 注解。
  * 也就是说，只要你的接口继承了 JpaRepository，Spring 就会自动把它识别为一个 Repository Bean，
@@ -23,7 +26,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository //  用于标记一个类是 Spring 容器中的一个Bean，可以注入到其他Bean中。
 public interface ImageHashDao extends JpaRepository<ImageHashEntity, String> {
-
+    @Query("SELECT i FROM ImageHashEntity i WHERE i.temp = false") //i是别名，必须添加！！！
+    List<ImageHashEntity> findAllTempImg();
     /**
      * ImageHashEntity：表示这个 DAO 操作的实体类。
      * String：表示该实体类的主键类型（即 @Id 字段的类型）。

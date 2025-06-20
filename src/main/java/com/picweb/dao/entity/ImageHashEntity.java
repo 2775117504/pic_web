@@ -1,14 +1,14 @@
 package com.picweb.dao.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.picweb.converter.BooleanToTinyIntConverter;
+
+import javax.persistence.*;
 
 /**
  * =================================hash值表对应的实体类===================================
  */
 @Entity //  用于标记一个类是 JPA 实体类，表示该类映射到数据库中的表。
-@Table(name = "md5_hash_url")
+@Table(name = "images")
 public class ImageHashEntity {
     @Id
     private String MD5;
@@ -16,6 +16,12 @@ public class ImageHashEntity {
     private String phash;
     private String url;
     private Integer headurl;
+    @Column(name = "temp")
+    @Convert(converter = BooleanToTinyIntConverter.class) // 用于将布尔值转换为 TinyInt 类型
+    private Boolean temp;
+
+    @Column(name = "img_date_id")
+    private Integer img_date_id;
 //  构造函数
 public ImageHashEntity(String MD5, String ahash, String phash, String url,  Integer headurl) {
     this.MD5 = MD5;
@@ -25,17 +31,24 @@ public ImageHashEntity(String MD5, String ahash, String phash, String url,  Inte
     this.headurl = headurl;
 }
 
-    public ImageHashEntity(String MD5, String ahash, String phash,  String url) {
+    public ImageHashEntity(String MD5, String ahash, String phash,  String url, Boolean temp) {
         this.MD5 = MD5;
         this.ahash = ahash;
         this.phash = phash;
         this.url = url;
+        this.temp = temp;
     }
 
+    public ImageHashEntity(String md5, String ahash, String phash, String url, Integer head, boolean b) {
+        this.MD5 = md5;
+        this.ahash = ahash;
+        this.phash = phash;
+        this.url = url;
+        this.headurl = head;
+    }
     public ImageHashEntity() {
 
     }
-
 
 
     public String getMD5() {
@@ -73,4 +86,19 @@ public ImageHashEntity(String MD5, String ahash, String phash, String url,  Inte
         return headurl;
     }
 
+    public Boolean getTemp() {
+        return temp;
+    }
+
+    public void setTemp(Boolean temp) {
+        this.temp = temp;
+    }
+
+    public Integer getImg_date_id() {
+        return img_date_id;
+    }
+
+    public void setImg_date_id(Integer img_date_id) {
+        this.img_date_id = img_date_id;
+    }
 }

@@ -1,7 +1,9 @@
 package com.picweb.controller;
 
 import com.picweb.dao.ImageHashDao;
+import com.picweb.dao.ImgUploadDateDao;
 import com.picweb.dao.entity.ImageHashEntity;
+import com.picweb.dao.entity.ImgUploadDateEntity;
 import com.picweb.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -111,13 +113,12 @@ public class UploadController {
     @ResponseBody
     public String ImageSourceUpload(@RequestParam("ImageSource") MultipartFile[] files,  //<<<-----RequestParam连个值对应前端formdata的两个键(key),没错还可以这么用
                                     @RequestParam("relativePath") String[] relativePaths) throws Exception {
-
         for (int i = 0; i < files.length && i < relativePaths.length; i++) {
 
             MultipartFile file =  files[i];
             String relativePath = relativePaths[i];
 
-            asyncService.UploadAsync(file, relativePath);
+            asyncService.UploadAsync(file, relativePath, files.length);
         }
             /*
             StringBuilder  systemResult = new StringBuilder(); ////后端控制台: 打印至后端控制台
@@ -160,8 +161,9 @@ public class UploadController {
         return "OK";  // 返回 OK 表示请求成功，不用于前端显示
 
     }
-
-    /*===========================================================导入图源的控制器===================================================================*/
+/*====================================================================导入图源的控制器========================================================================*/
+    @Autowired
+    private ImgUploadDateDao imgUploadDateDao;
     @PostMapping("/imageUpload")
     @ResponseBody          /*将方法的返回值直接写入 HTTP 响应体中，而不是作为视图名称解析。*/
     public String ImageUpdate(@RequestParam(name="Image", required = false) MultipartFile[] files,  //设置false为非必要性传入参数
@@ -196,17 +198,21 @@ public class UploadController {
                 System.out.println("该目录没有图片文件");
                 return "该目录没有图片文件";
             }
+            Integer TotalCount = imagePaths.size();
             for (String imagePath : imagePaths) {
                 File file = new File(imagePath);
-                BufferedImage image = ImageIO.read(file);
-                asyncService.ImportAsync(image, imagePath,importImageMd5Service.getMD5(file),url);
+                BufferedImage image =ImageIO.read(file);
+                asyncService.ImportAsync(image, imagePath,importImageMd5Service.getMD5(file),url,TotalCount);
             }
         }
 
-        /*==========================================================以选择文件方式上传图片的控制器=======================================================*/
+ /*================================================================以选择文件方式上传图片的控制器=============================================================*/
         else if (files != null && Arrays.stream(files).anyMatch(file -> !file.isEmpty())) {
             System.out.println("进入了文件不为空的elseif语句："+files);
             System.out.println("进入了文件不为空的elseif语句："+files.length);
+            Integer TotalCount = files.length; //总图片数量
+            ImgUploadDateEntity Entity = new ImgUploadDateEntity(); //为每一个上传批次添加一个时间戳
+            imgUploadDateDao.save(Entity);
             for (MultipartFile file : files) {
                 if (!uploadService.isImageFile(file)) { // 判断是否为图片文件并过滤
                     continue;
@@ -231,7 +237,7 @@ public class UploadController {
                 /**
                  *调用service层upload方法
                  **/
-                Map<String, Object> res = uploadService.upload(file, ahash, phash, md5);
+                Map<String, Object> res = uploadService.upload(file, ahash, phash, md5,TotalCount);
                 sseController.sendMessageToAllClients(res);
             }
         }else {
@@ -244,6 +250,9 @@ public class UploadController {
         return "OK";
     }
 
+/**
+    ============================================================重新上传图片的控制器=====================================================================
+*/
     @Autowired
     public ImageHashDao imageHashDao;
     @PostMapping("/imageReUpload")
@@ -276,15 +285,21 @@ public class UploadController {
             /**
              * 等价于 ImageHashDao.save(new ImageHashEntity(MD5, hash));
              */
-            ImageHashEntity imageHashEntity = new ImageHashEntity(md5, ahash, phash, file.getOriginalFilename());
+            ImageHashEntity imageHashEntity = new ImageHashEntity(md5, ahash, phash, file.getOriginalFilename(), false);
+            /**
+             从时间戳表中获取最新条数据的主键id并添加进图片数据表的外键中
+             */
+            ImgUploadDateEntity img_date = imgUploadDateDao.findLatestByDate();
+            Integer date_id = img_date.getId();
+            imageHashEntity.setImg_date_id(date_id);
             imageHashDao.save(imageHashEntity);
 
-            map.put("Message", "文件上传成功：" + file.getOriginalFilename());
+            map.put("Message", "重上传成功：" + file.getOriginalFilename());
             sseController.sendMessageToAllClients(map);
 
         } catch (IOException e) {
             e.printStackTrace();
-            map.put("Message", "文件上传失败：" + e.getMessage());
+            map.put("Message", "重上传失败：" + e.getMessage());
             sseController.sendMessageToAllClients(map);
         }
         return map;
