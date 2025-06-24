@@ -1,15 +1,14 @@
 package com.picweb.controller;
 
 import com.picweb.dao.entity.ImageHashEntity;
+import com.picweb.dao.entity.ImgUploadDateEntity;
 import com.picweb.service.locallib.TempService;
 import com.picweb.service.toolist.NameSort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,17 +25,44 @@ public class LocalController {
     private TempService tempService;
     @Autowired
     private NameSort nameSort;
+    // 呈现临时图片的接口
     @GetMapping("/temp")
     @ResponseBody
-    public Map<String, Object> temp() {
-        Map<String, Object> map = new HashMap<>();
-        List<String> urls = new ArrayList<>();
-        for (ImageHashEntity temp : tempService.getTemps()){
-            urls.add(temp.getUrl());
+    public Map<Object, Object> temp(@RequestParam(name = "dateNum", required = false) Integer dateNum) {
+        Map<Object, Object> map = new HashMap<>();
+        // 获取所有时间戳并发送给前端
+        if (dateNum == null){
+            // SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            // 修改为使用DateTimeFormatter
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); //java11新版语言特性，进行时间格式化
+            for (ImgUploadDateEntity date: tempService.getDates()){
+                map.put(date.getId(),formatter.format(date.getDate())); // 将LocalDateTime转换为字符串
+            }
+//        map.put("tempUrl", nameSort.deepSort(urls, null, true)); //为图片排序并返回所有临时图片
+            return map;
+        // 获取指定时间戳的图片并返回给前端
+        }else {
+            List<List> urlsAndMD5s = new ArrayList<>();
+            List<ImageHashEntity> dateImgs = tempService.getTempImages(dateNum);
+            for (ImageHashEntity dateImg: dateImgs){
+                List<String> urlAndMD5 = new ArrayList<>();
+                urlAndMD5.add(dateImg.getUrl());
+                urlAndMD5.add(dateImg.getMD5());
+                urlsAndMD5s.add(urlAndMD5);
+            }
+            System.out.println(urlsAndMD5s);
+            map.put("urlsAndMD5s", urlsAndMD5s);
+            return map;
         }
-        map.put("tempUrl", nameSort.deepSort(urls, null, true)); //为图片排序并返回所有临时图片
-        return map;
     }
+    @PostMapping("/addTag")
+    @ResponseBody
+    public String addTag(@RequestBody Map<String, Object> tag) { //RequestParam注解用于将 请求参数 绑定到方法参数上。url带问号
+        System.out.println("传入的md5有: "+tag.get("tags"));
+        return "ok";
+    }
+
+
     @GetMapping
     @ResponseBody
     public String LocalLibTag(@RequestParam("tag") String tag) {
