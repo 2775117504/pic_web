@@ -28,6 +28,10 @@ import java.util.List;
 public interface ImageHashDao extends JpaRepository<ImageHashEntity, String> {
     @Query("SELECT i FROM ImageHashEntity i WHERE i.temp = false") //i是别名，必须添加！！！
     List<ImageHashEntity> findAllTempImg();
+    //查询所有img_date_id值等于指定值的查询方法
+    @Query(value = "SELECT * FROM images WHERE img_date_id = ?1", nativeQuery = true) //使用mysql原生写法，true表支持
+    List<ImageHashEntity> findByImgDateId(Integer imgDateId);
+
     /**
      * ImageHashEntity：表示这个 DAO 操作的实体类。
      * String：表示该实体类的主键类型（即 @Id 字段的类型）。

@@ -61,7 +61,7 @@ public class UploadService {
             String sqlPhash = entity.getPhash();
             double hamming = ImageaHashService.hammingDistance(sqlPhash, phash);
 //            System.out.println("相似度：" + hamming);
-            if (hamming >= 55.0) {
+            if (hamming >= 59.0) {
                 /*if (entity.getUrl().contains("\\")){
                     String sqlUrl = entity.getUrl().substring(3);
                     urls.add(sqlUrl);
@@ -100,7 +100,7 @@ public class UploadService {
             */
             ImgUploadDateEntity img_date = imgUploadDateDao.findLatestByDate();
             Integer date_id = img_date.getId();
-            imageHashEntity.setImg_date_id(date_id);
+            imageHashEntity.setImgDateId(date_id);
             imageHashDao.save(imageHashEntity);
 
             map.put("Message", "上传成功: " + file.getOriginalFilename());

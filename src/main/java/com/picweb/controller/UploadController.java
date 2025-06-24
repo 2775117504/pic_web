@@ -111,7 +111,7 @@ public class UploadController {
     /*======================================================================以拖拽形式上传图片的控制器=================================================================*/
     @PostMapping("/imageSourceUpload")
     @ResponseBody
-    public String ImageSourceUpload(@RequestParam("ImageSource") MultipartFile[] files,  //<<<-----RequestParam连个值对应前端formdata的两个键(key),没错还可以这么用
+    public String ImageSourceUpload(@RequestParam("ImageSource") MultipartFile[] files,  //<<<-----RequestParam连个值对应前端formdata的两个键(key),没错还可以这么用（仅表单提交）
                                     @RequestParam("relativePath") String[] relativePaths) throws Exception {
         for (int i = 0; i < files.length && i < relativePaths.length; i++) {
 
@@ -291,7 +291,7 @@ public class UploadController {
              */
             ImgUploadDateEntity img_date = imgUploadDateDao.findLatestByDate();
             Integer date_id = img_date.getId();
-            imageHashEntity.setImg_date_id(date_id);
+            imageHashEntity.setImgDateId(date_id);
             imageHashDao.save(imageHashEntity);
 
             map.put("Message", "重上传成功：" + file.getOriginalFilename());

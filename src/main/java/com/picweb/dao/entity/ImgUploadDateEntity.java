@@ -1,7 +1,7 @@
 package com.picweb.dao.entity;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * ==============================================上传时间戳表对应的实体类==================================================
@@ -14,9 +14,9 @@ public class ImgUploadDateEntity {
     private Integer id;
     @Column(name = "date", updatable = false,insertable = false) //表示该字段由数据库自动管理，Java 程序不参与插入或更新！！  //nullable = true
 //    @Temporal(TemporalType.TIMESTAMP)  //用于将 Date 类型正确映射到数据库的 TIMESTAMP 或 DATETIME 类型。
-    private Date date;
+    private LocalDateTime date;
 
-    public ImgUploadDateEntity(Integer  id, Date date) {
+    public ImgUploadDateEntity(Integer  id, LocalDateTime date) {
         this.id = id;
         this.date = date;
     }
@@ -33,11 +33,11 @@ public class ImgUploadDateEntity {
         this.id = id;
     }
 
-    public Date getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 }

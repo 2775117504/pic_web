@@ -21,7 +21,7 @@ public class ImageHashEntity {
     private Boolean temp;
 
     @Column(name = "img_date_id")
-    private Integer img_date_id;
+    private Integer ImgDateId;
 //  构造函数
 public ImageHashEntity(String MD5, String ahash, String phash, String url,  Integer headurl) {
     this.MD5 = MD5;
@@ -94,11 +94,11 @@ public ImageHashEntity(String MD5, String ahash, String phash, String url,  Inte
         this.temp = temp;
     }
 
-    public Integer getImg_date_id() {
-        return img_date_id;
+    public Integer getImgDateId() {
+        return ImgDateId;
     }
 
-    public void setImg_date_id(Integer img_date_id) {
-        this.img_date_id = img_date_id;
+    public void setImgDateId(Integer imgDateId) {
+        this.ImgDateId = imgDateId;
     }
 }
