@@ -100,38 +100,48 @@
         display: none;
         animation: slideInFromLeft 0.3s ease forwards;
     }
+    .add-tag-button-zindex{
+        z-index: -1;
+    }
 </style>
 <body style="background-color: rgb(72,72,72)">
 
 
 <!-- 弹窗容器 -->
-<div id="customModal" class="customModal" style="flex-direction: column;width: 800px;height: 600px; display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.11); padding: 20px; z-index: 1000; border-radius: 5px;">
+<div id="customModal" class="customModal" style="flex-direction: column;width: 700px;height: 600px; display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.11); padding: 20px; z-index: 1000; border-radius: 10px;">
     <textarea id="textarea" style="resize: none ; font-size: 18px;font-weight: bold ; color: white;background: rgba(255,255,255,0.07);width: 700px;height: 300px;border: white 1px solid;border-radius: inherit ;margin: 0 auto ;
                 display: block;" placeholder="此处输入标签，多标签以分号分隔"></textarea>
 
-    <div id="tag_show" style="display: flex; margin: 10px auto 0; width: 700px; height: 200px; border: white 1px solid; border-radius: inherit;">
+    <div  id="tag_show" style="display: flex; margin: 10px auto 0; width: 700px; height: 200px; border: white 1px solid; border-radius: inherit;">
     </div>
 
-    <button style="display: block; border-radius: inherit;margin: auto 320px 0" onclick="tagSubmit()">提交并关闭</button>
+    <button style="display: block; border-radius: inherit;margin: auto 300px 0" onclick="tagSubmit()">提交并关闭</button>
 </div>
 <!-- 遮罩层  /* 兼容 Safari */-->
-<div id="modalOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999;backdrop-filter: blur(10px);
+<div onclick="backToTempPage()" id="modalOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999;backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);"></div>
 <script>
-    let selecteds = [];
+    let selectedsNum=0; // 记录选中的图片数量
+    let selecteds = []; // 记录选中的图片md5
     function tagSubmit() {
         let tags=null;
-        if (selecteds.length > 0){
-            tags = selecteds;
-        }else{
+        let md5s=[];
+        if (selecteds.length > 0 && document.getElementById('textarea').value.trim() !== "" ){
             tags = document.getElementById('textarea').value;
+            md5s = selecteds;
+
+        }else if (document.getElementById('textarea').value.trim() !== ""){
+            tags = document.getElementById('textarea').value;
+        }else {
+            alert("请输入标签！");
+            return;
         }
         fetch('/LocalLib/addTag', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({"tags": tags})
+            body: JSON.stringify({"tags": tags,"md5s": md5s} )
         })
         .then(response => response.json())
         .then(data => {
@@ -140,13 +150,24 @@
         .catch(error => {
             console.error('Error:', "发送被选中的图片的md5请求时出现错误！");
         });
+        document.getElementById('textarea').value = "";
+
         document.getElementById('customModal').style.display='none';
         document.getElementById('modalOverlay').style.display='none';
     }
+    function backToTempPage() {
+        document.getElementById('customModal').style.display='none';
+        document.getElementById('modalOverlay').style.display='none';
+    }
+
+
 </script>
 
 
 <div>
+    <div id="multiple_selected" class="multiple_selected"
+         style="text-align: right;color: white;border: white 1px solid;width: 150px;height: 20px; position: absolute;top: 78px;right: 212px;">
+    </div>
     <div id="all_img_tags" class="all_img_tags">
         <h3 id="temp_img_tag" class="temp_img">临时存放区</h3>
         <ul>
@@ -162,7 +183,6 @@
     <div id="img_show" class="img_show">
         <!--            <img src="/uploads/1657684976584.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/1691325756271.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/23.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/423a18b3dc3a7985f1d26c34819db5a0ac33efbe.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/50ad45bc2e7c84caad7afe614d159fa70068601f.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/5338_render_499_death_note.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/5d773114233208e846001d9e450ec43586763ef5.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/87c264a416eff5595cd3594ff026c6b7bd5cd58f.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/GHjL93tbkAAQLQA.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/GLIk4WWaEAAb8Sn.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/GLXs2ocasAAxnd2.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/Record_of_Lodoss_War_PC98_0001.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/Sorcerer_Magazine_008.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/d648ca268ce37cb9a7ae8a76127b6fd3.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/mi-qi-emma-6.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/panties-nekomimi-animal-ears-1rYy.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/pg_003.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/photo_2022-12-07_15-34-07.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/photo_2023-12-01_20-18-46.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/th.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/z.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-08-22 150920.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-09-22 125852.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-09-22 125948.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-09-26 092228.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-09-26 093356.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/微信图片_20231222220649.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"></div>-->
     </div>
-
 
 
 </div>
@@ -231,7 +251,8 @@
                         })
                             .then(response => response.json())
                             .then(data => {
-                                selecteds = []; // 用于记录选中的图片的MD5
+                                selecteds = []; // 用于重置选中的图片的MD5
+                                selectedsNum = 0; // 用于重置选中的图片数量
                                 data.urlsAndMD5s.forEach(urlsAndMD5s => {
                                     // 设立一个收容单张图片的容器
                                     const tagAndImg = document.createElement("span");
@@ -265,13 +286,37 @@
                                     selectedImg.id = "selected";
                                     tagAndImg.appendChild(selectedImg);
 
+
                                     img.onclick = function (){
                                         if (selectedImg.style.display === "block"){
                                             selectedImg.style.display = "none";
                                             selecteds.splice(selecteds.indexOf(urlsAndMD5s[1]),1);
+
+                                            selectedsNum--;
+                                            document.getElementById("multiple_selected").innerText = "已选中"+selectedsNum+"张"+"点击添加";
+                                            document.getElementById("multiple_selected").addEventListener("click", function (e){
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                document.getElementById("multiple_selected").innerText = "";
+                                                document.getElementById("customModal").style.display = "flex";
+                                                document.getElementById("modalOverlay").style.display = "block";
+                                            })
+                                            if (selectedsNum === 0){
+                                                document.getElementById("multiple_selected").innerText = "";
+                                            }
                                         }else{
                                             selectedImg.style.display = "block";
                                             selecteds.push(urlsAndMD5s[1]);
+
+                                            selectedsNum++;
+                                            document.getElementById("multiple_selected").innerText = "已选中"+selectedsNum+"张"+"点击添加";
+                                            document.getElementById("multiple_selected").addEventListener("click", function (e){
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                document.getElementById("multiple_selected").innerText = "";
+                                                document.getElementById("customModal").style.display = "flex";
+                                                document.getElementById("modalOverlay").style.display = "block";
+                                            })
                                         }
                                     }
 
@@ -295,12 +340,19 @@
                                     addTag.style.cursor = "pointer";
                                     addTag.style.display = "none";
                                     addTag.className = "add-tag-button";
-                                    addTag.onclick = function (){
-                                        document.getElementById("customModal").style.display = "flex";
-                                        document.getElementById("modalOverlay").style.display = "block";
-                                    }
-                                    tagAndImg.appendChild(addTag);
 
+                                    function addTagButtonClick(){
+                                        addTag.addEventListener("click",function (e){
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            document.getElementById("multiple_selected").innerText = "";
+                                            document.getElementById("customModal").style.display = "flex";
+                                            document.getElementById("modalOverlay").style.display = "block";
+                                        })
+                                    }
+                                    addTagButtonClick();
+
+                                    tagAndImg.appendChild(addTag);
                                     document.getElementById("imgShow").appendChild(tagAndImg);
                                 })
                             })

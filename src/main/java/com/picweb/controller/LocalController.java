@@ -55,10 +55,13 @@ public class LocalController {
             return map;
         }
     }
+    // 添加标签
     @PostMapping("/addTag")
     @ResponseBody
     public String addTag(@RequestBody Map<String, Object> tag) { //RequestParam注解用于将 请求参数 绑定到方法参数上。url带问号
-        System.out.println("传入的md5有: "+tag.get("tags"));
+        System.out.println("传入的tag有: "+tag.get("tags"));
+        System.out.println("被选中图片的md5有: "+tag.get("md5s"));
+        tempService.uploadTag(tag.get("tags").toString());
         return "ok";
     }
 

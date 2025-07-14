@@ -23,7 +23,7 @@ import java.util.concurrent.Executor;
 public class SseController {
 
     // 存储所有连接的客户端
-    private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
+    private static final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
     @GetMapping(value = "/uploadProgress", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamUploadProgress() {
@@ -70,4 +70,3 @@ public class SseController {
         emitters.removeAll(deadEmitters);
     }
 }
-
