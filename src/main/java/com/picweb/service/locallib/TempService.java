@@ -1,9 +1,11 @@
 package com.picweb.service.locallib;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.picweb.dao.ImageAndTagsDao;
 import com.picweb.dao.ImageHashDao;
 import com.picweb.dao.ImgUploadDateDao;
 import com.picweb.dao.TagsDao;
+import com.picweb.dao.entity.ImageAndTagsEntity;
 import com.picweb.dao.entity.ImageHashEntity;
 import com.picweb.dao.entity.ImgUploadDateEntity;
 import com.picweb.dao.entity.TagsEntity;
@@ -24,6 +26,8 @@ public class TempService {
     private RedisCacheService redisCacheService;
     @Autowired
     private TagsDao tagsDao;
+    @Autowired
+    private ImageAndTagsDao imageAndTagsDao;
     //获取所有临时图片的时间戳
     public List<ImgUploadDateEntity> getDates(){
         return imgUploadDateDao.findAll();
@@ -57,9 +61,14 @@ public class TempService {
         return result;
     }
     // 上传至标签数据库
-    public void uploadTag(String tag){
+    public void uploadTag(String tag, List<String> md5s){
         TagsEntity tagsEntity=new TagsEntity(tag);
         tagsDao.save(tagsEntity);
+        for (String md5:md5s) {
+            ImageAndTagsEntity imageAndTagsEntity=new ImageAndTagsEntity(md5,tagsEntity.getId());
+            imageAndTagsDao.save(imageAndTagsEntity);
+            System.out.println("成功把tag和其相对应的图片md5存入数据库！");
+        }
 
     }
 }

@@ -50,6 +50,10 @@
 
 
     .Dates_div{
+        display: flex;
+        background-color: rgb(89, 44, 117); /* 修正为标准写法 */
+        height: 32px;
+
         overflow-x: auto; /* 启用水平滚动 */
         white-space: nowrap; /* 防止换行 */
         max-width: 100%; /* 控制最大宽度 */
@@ -57,6 +61,9 @@
         /* IE 和 Firefox 兼容性设置 */
         -ms-overflow-style: none;  /* IE 隐藏滚动条 */
         scrollbar-width: none;     /* Firefox 隐藏滚动条 */
+
+        box-shadow:
+                    0 -4px 6px rgba(0, 0, 0, 0.45); /* 向上阴影 */
     }
     .fake_container::-webkit-scrollbar {
         width: 0;
@@ -65,14 +72,27 @@
     .Date_div{
         /*padding: 6px 12px;*/
         /*border: 1px solid white;*/
-        color: inherit;
+        color: inherit;  /*继承父元素的颜色*/
         text-decoration: none;
-        transition: all 0.3s ease;
+        transition: all 0.18s ease;
 
+        border-top: white 1px solid;
+        border-bottom: white 1px solid;
+
+        display: flex;
+        justify-content: center;
+        align-items: center; /*//垂直居中*/
     }
-    .Date_div:hover{
-        background-color: rgba(255, 255, 255, 0.2);
-        border-radius: 4px;
+    .Date_div.active{
+        background-color: rgb(72, 72, 72);
+        border-radius: 5px 5px 0 0;
+        border-left: white 1px solid;
+        border-right: white 1px solid;
+        border-bottom: none;
+    }
+
+    .Date_div:not(.active):hover{
+        background-color: rgba(101, 101, 101, 0.34);
     }
 
 
@@ -102,6 +122,13 @@
     }
     .add-tag-button-zindex{
         z-index: -1;
+    }
+    /*包裹标签页内每个日期文本的span样式*/
+    .Date_span {
+        width: auto;
+        height: auto;
+        border-right: 1px solid rgba(255, 255, 255, 0.4);
+        cursor: pointer;
     }
 </style>
 <body style="background-color: rgb(72,72,72)">
@@ -165,9 +192,11 @@
 
 
 <div>
+<!--    右上角多选标签信息显示区域-->
     <div id="multiple_selected" class="multiple_selected"
          style="text-align: right;color: white;border: white 1px solid;width: 150px;height: 20px; position: absolute;top: 78px;right: 212px;">
     </div>
+<!--    标签显示区域-->
     <div id="all_img_tags" class="all_img_tags">
         <h3 id="temp_img_tag" class="temp_img">临时存放区</h3>
         <ul>
@@ -180,6 +209,7 @@
             </li>
         </ul>
     </div>
+<!--    图片显示区域-->
     <div id="img_show" class="img_show">
         <!--            <img src="/uploads/1657684976584.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/1691325756271.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/23.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/423a18b3dc3a7985f1d26c34819db5a0ac33efbe.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/50ad45bc2e7c84caad7afe614d159fa70068601f.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/5338_render_499_death_note.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/5d773114233208e846001d9e450ec43586763ef5.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/87c264a416eff5595cd3594ff026c6b7bd5cd58f.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/GHjL93tbkAAQLQA.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/GLIk4WWaEAAb8Sn.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/GLXs2ocasAAxnd2.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/Record_of_Lodoss_War_PC98_0001.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/Sorcerer_Magazine_008.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/d648ca268ce37cb9a7ae8a76127b6fd3.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/mi-qi-emma-6.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/panties-nekomimi-animal-ears-1rYy.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/pg_003.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/photo_2022-12-07_15-34-07.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/photo_2023-12-01_20-18-46.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/th.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/z.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-08-22 150920.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-09-22 125852.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-09-22 125948.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-09-26 092228.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-09-26 093356.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/微信图片_20231222220649.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"></div>-->
     </div>
@@ -187,6 +217,7 @@
 
 </div>
 </body>
+
 <script>
     // 点击标签跳转
     document.getElementById("25").addEventListener("click", function (e) {
@@ -220,24 +251,39 @@
                 console.log(data);
                 //   加入分页标签
                 const datesdiv = document.createElement("div")   //设立一个收容时间戳菜单栏的容器
-                //datesdiv.style.border = "1px solid white"
                 datesdiv.className = "Dates_div";
-                datesdiv.style.display = "flex";
-                datesdiv.style.backgroundColor = "rgb(21,21,21)"
-                datesdiv.style.height = "32px";
 
+                //遍历获取到的所有时间戳
                 Object.entries(data).forEach(([key , value]) => {  //Object为json原生对象，entries为其方法，用于键值对的类型转换成可供forEach遍历的数组
+                    const datespan = document.createElement("span");
                     const datediv = document.createElement("div");
-                    datediv.innerText = value;
-                    datediv.style.display = "inline-block";
+
                     // datediv.style.margin = "4px 5px";
                     // datediv.style.border = "1px solid white";
-                    datediv.title = key;
-                    datediv.style.cursor = "pointer";
+                    datespan.innerText = value;
+                    datespan.title = key;
+                    datespan.style.cursor = "pointer";
+
+                    datespan.className = "Date_span";
+                    datespan.id = "Date_span";
+
                     datediv.className = "Date_div";
-                    //   加入分页点击事件
+                    datediv.id = "Date_div";
+
+                    datediv.appendChild(datespan);
+                    datesdiv.appendChild(datediv);
+                    document.getElementById("img_show").appendChild(datesdiv);
+
+                    //   加入标签页点击事件
                     datediv.onclick = function (){
-                        datediv.style.background = "rgb(72,72,72)";
+                        document.getElementById("multiple_selected").innerHTML = "";
+                        // 清除所有标签的选中状态
+                        const tabs = document.querySelectorAll('.Date_div');
+                        tabs.forEach(t => t.classList.remove('active'));
+                        // 添加当前标签页的选中状态
+                        datediv.classList.add('active');
+
+
                         if (document.getElementById("imgShow")){
                             document.getElementById("imgShow").remove();
                         }
@@ -245,6 +291,7 @@
                         const div = document.createElement("div");
                         div.id = "imgShow";
                         div.className = "imgShow";
+                        div.style.marginTop = "8px";
                         document.getElementById("img_show").appendChild(div);
                         fetch("/LocalLib/temp?dateNum="+encodeURIComponent(key),{
                             method:"GET"
@@ -360,9 +407,21 @@
                             console.error(error);
                         });
                     }
-                    datesdiv.appendChild(datediv);
+                    // datesdiv.appendChild(datediv);
                 })
-                document.getElementById("img_show").appendChild(datesdiv);
+
+                //获取第一个时间戳并自动展示
+                const firstDiv = document.querySelector('.Dates_div > .Date_div');
+                if (firstDiv.children.length > 0) {
+                    firstDiv.classList.add('active');
+                    if (firstDiv) firstDiv.click();
+                }else{
+
+                }
+
+
+
+                // document.getElementById("img_show").appendChild(datesdiv);
                 //绑定鼠标滚轮能够水平滚动的事件
                 datesdiv.addEventListener("wheel", function (e) {
                     if (e.deltaY !== 0) {
