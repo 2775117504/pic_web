@@ -32,6 +32,9 @@ public interface ImageHashDao extends JpaRepository<ImageHashEntity, String> {
     @Query(value = "SELECT * FROM images WHERE img_date_id = ?1", nativeQuery = true) //使用mysql原生写法，true表支持
     List<ImageHashEntity> findByImgDateId(Integer imgDateId);
 
+    @Query("SELECT i.url FROM ImageHashEntity i WHERE i.MD5 = ?1")
+    String findImageUrlByMD5(String md5);
+
     /**
      * ImageHashEntity：表示这个 DAO 操作的实体类。
      * String：表示该实体类的主键类型（即 @Id 字段的类型）。

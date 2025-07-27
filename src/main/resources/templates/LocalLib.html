@@ -11,32 +11,8 @@
         height: 100vh;
         background-color: #333;
     }
-    li:hover {
-        color: white;
-        text-shadow:
-                -14px -1px 8px rgba(255, 255, 255, 0.79),
-                1px -1px 6px rgba(255, 255, 255, 0.79),
-                12px  1px 6px rgba(255, 255, 255, 0.79),
-                1px  1px 6px rgba(255, 255, 255, 0.79);
-    }
-    .all_img_tags{
-        border: white 1px solid;
-        position: absolute;
-        left: 10px;
-        top: 150px;
-        transform: translateY(-50px);
-    }
-    .temp_img{
-        cursor: pointer;  //鼠标样式变成手型，表示此处能点击的一种提示
-    }
-    .temp_img:hover{
-        color: white;
-        text-shadow:
-                -14px -1px 8px rgba(255, 255, 255, 0.79),
-                1px -1px 6px rgba(255, 255, 255, 0.79),
-                12px  1px 6px rgba(255, 255, 255, 0.79),
-                1px  1px 6px rgba(255, 255, 255, 0.79);
-   }
+
+
     .img_show{
         border: white 1px solid;
         position: absolute;
@@ -190,6 +166,103 @@
 
 </script>
 
+<style>
+    .temp_img{
+        border: white 1px solid;
+        color: white;
+        background-color: #7615c7;
+        text-align: center;
+        cursor: pointer;  /*//鼠标样式变成手型，表示此处能点击的一种提示*/
+
+        transition: transform 0.3s ease;
+    }
+    .temp_img:hover{
+        color: white;
+        text-shadow:
+                -1px -1px 1px rgba(255, 255, 255, 0.60),   /*左下*/
+                1px -1px 1px rgba(255, 255, 255, 0.60),     /*右下*/
+                1px  1px 1px rgba(255, 255, 255, 0.60),    /*右上*/
+                -1px  1px 1px rgba(255, 255, 255, 0.60);     /*左上*/
+        transform: translateX(20px);
+
+    }
+    a{
+        text-decoration: none;
+        color: #ffffff;
+    }
+    ul{
+        list-style: none;
+        border: white 1px solid;
+        display: block;
+        padding-left: 0;
+        text-align: center;
+        cursor: pointer;
+
+    }
+    li{
+        border: white 1px solid;
+        width: 130px;
+        background-color: rebeccapurple;
+        display: block;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+
+    }
+
+    li:hover {
+        color: white;
+        text-shadow:
+                -1px -1px 1px rgba(255, 255, 255, 0.60),   /*左下*/
+                1px -1px 1px rgba(255, 255, 255, 0.60),     /*右下*/
+                1px  1px 1px rgba(255, 255, 255, 0.60),    /*右上*/
+                -1px  1px 1px rgba(255, 255, 255, 0.60);     /*左上*/
+        transform: translateX(20px);
+    }
+    .all_img_tags{
+        border: white 1px solid;
+        width: 132px;
+        margin-left: -30px;
+        position: absolute;
+        top: 150px;
+        transform: translateY(-50px); /*向上移动*/
+    }
+/*刷新标签的动画    */
+    @keyframes fadeSlideIn {
+        0% {
+            opacity: 0;
+            transform: translateY(10px) scale(0.95);
+        }
+        100% {
+            opacity: 1; /*//透明度*/
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .tag-item {
+        opacity: 0;
+        animation: fadeSlideIn 0.3s ease forwards;
+    }
+
+/* 图片加载动画 */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(100px)  ;
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) ;
+        }
+    }
+
+    /* 应用动画到图片元素 */
+    .img-fade-in {
+        opacity: 0; /* 初始隐藏 */
+        animation: fadeIn 0.2s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    }
+
+
+</style>
 
 <div>
 <!--    右上角多选标签信息显示区域-->
@@ -198,20 +271,35 @@
     </div>
 <!--    标签显示区域-->
     <div id="all_img_tags" class="all_img_tags">
-        <h3 id="temp_img_tag" class="temp_img">临时存放区</h3>
-        <ul>
-            <li id="tag1">
-                <a href="#" id="25">kantoku</a>
-            </li>
+        <!--    刷新图标-->
+        <div id="refreshBtn" class="refresh-icon" style="color: white;border: white 1px solid;display: block;margin-left: 105px;height: 24px;">
+            <svg id="icon1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.7" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+            </svg>
 
-            <li>
-                <a href="#" id="23">artist</a>
-            </li>
+            <svg id="icon2" xmlns="http://www.w3.org/2000/svg" style="display: none" width="24" height="24" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="1">
+                <circle cx="12" cy="12" r="9.5" fill="none" stroke-linecap="round" stroke-width="3">
+                    <animate attributeName="stroke-dasharray" calcMode="spline" dur="1.5s"
+                             keySplines="0.42,0,0.58,1;0.42,0,0.58,1;0.42,0,0.58,1"
+                             keyTimes="0;0.475;0.95;1" repeatCount="indefinite" values="0 150;42 150;42 150;42 150" />
+                    <animate attributeName="stroke-dashoffset" calcMode="spline" dur="1.5s"
+                             keySplines="0.42,0,0.58,1;0.42,0,0.58,1;0.42,0,0.58,1"
+                             keyTimes="0;0.475;0.95;1" repeatCount="indefinite" values="0;-16;-59;-59" />
+                </circle>
+                <animateTransform attributeName="transform" dur="2s" repeatCount="indefinite" type="rotate"
+                                  values="0 12 12;360 12 12" />
+            </g></svg>
+        </div>
+        <!--暂存点-->
+        <h3 id="temp_img_tag" class="temp_img">暂存点</h3>
+        <!--标签列表：-->
+        <ul id="tag_list" class="tag_list">
+
         </ul>
     </div>
 <!--    图片显示区域-->
+
     <div id="img_show" class="img_show">
-        <!--            <img src="/uploads/1657684976584.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/1691325756271.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/23.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/423a18b3dc3a7985f1d26c34819db5a0ac33efbe.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/50ad45bc2e7c84caad7afe614d159fa70068601f.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/5338_render_499_death_note.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/5d773114233208e846001d9e450ec43586763ef5.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/87c264a416eff5595cd3594ff026c6b7bd5cd58f.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/GHjL93tbkAAQLQA.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/GLIk4WWaEAAb8Sn.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/GLXs2ocasAAxnd2.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/Record_of_Lodoss_War_PC98_0001.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/Sorcerer_Magazine_008.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/d648ca268ce37cb9a7ae8a76127b6fd3.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/mi-qi-emma-6.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/panties-nekomimi-animal-ears-1rYy.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/pg_003.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/photo_2022-12-07_15-34-07.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/photo_2023-12-01_20-18-46.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/th.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/z.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-08-22 150920.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-09-22 125852.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-09-22 125948.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-09-26 092228.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/屏幕截图 2023-09-26 093356.png" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"><img src="/uploads/微信图片_20231222220649.jpg" style="border: 1px solid white; width: 160px; height: 190px; object-fit: contain; margin: 0px 8px;"></div>-->
     </div>
 
 
@@ -219,24 +307,150 @@
 </body>
 
 <script>
-    // 点击标签跳转
-    document.getElementById("25").addEventListener("click", function (e) {
-        e.preventDefault(); // 阻止表单默认提交
-        const formData = new FormData();
-        const tag=document.getElementById("25").innerText;
-        alert(tag);
-        formData.append("tag", tag);
-        fetch("/LocalLib?tag="+encodeURIComponent(tag), {
+    // // 页面加载时就刷新标签,标签初始化
+    // window.addEventListener("load", () => {
+    //     fetch("/LocalLib/refreshTag", {
+    //         method: "GET"
+    //     })
+    //         .then(res => res.json())
+    //         .then(data => {
+    //             const tagList = document.getElementById("tag_list");
+    //             tagList.innerHTML = ""; // 清空旧的
+    //             data.forEach(tag => {
+    //                 const li = document.createElement("li");
+    //                 const a = document.createElement("a");
+    //                 a.href = "#";
+    //                 a.innerText = tag;
+    //                 li.appendChild(a);
+    //                 tagList.appendChild(li);
+    //             });
+    //         });
+    // });
+
+    // 点击刷新图标的刷新标签事件
+    const btn = document.getElementById('refreshBtn');
+    const icon1 = document.getElementById('icon1');
+    const icon2 = document.getElementById('icon2');
+
+    btn.addEventListener('click', () => {
+        icon1.style.display = 'none';
+        icon2.style.display = 'inline-block';
+        // 禁用按钮
+        btn.style.pointerEvents = 'none'; // 禁用点击
+        btn.style.cursor = 'not-allowed'; // 改变鼠标样式
+
+        const tagList = document.getElementById("tag_list");
+        tagList.innerHTML = ""; // 清空旧标签
+
+        fetch("/LocalLib/refreshTag", {
             method: "GET"
         })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                Object.entries(data).forEach(([key , value], index) => {
+                    const tagLi = document.createElement("li");
+                    const tagA = document.createElement("a");
+                    setTimeout(() => {
+                        tagLi.dataset.id = key;
+                        tagA.innerText = value;
+                        tagLi.classList.add("tag-item"); // 添加动画类
+                        tagLi.appendChild(tagA);
+                        tagList.appendChild(tagLi);
+                    }, index * 100); // 每个标签延迟出现，100ms 间隔
+                    tagLi.addEventListener("click", function (e) {
+
+                        e.preventDefault();
+                        fetch(`/LocalLib/tag/${key}`, {
+                            method: "GET"
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                                //添加顶部导航栏
+                                const datesdiv=document.createElement("div")
+                                datesdiv.className="Dates_div"
+                                document.getElementById("img_show").innerHTML = ""; // 清空旧的内容
+                                document.getElementById("img_show").appendChild(datesdiv);
+
+                                //设立一个收容临时图片的容器
+                                const imgsdiv = document.createElement("div");
+                                imgsdiv.id = "imgShow";
+                                imgsdiv.className = "imgShow";
+                                imgsdiv.style.marginTop = "8px";
+                                document.getElementById("img_show").appendChild(imgsdiv);
+
+                                //添加标签对应图片
+                                console.log(data);
+                                data.forEach((md5,i) => {
+                                    const imgSpan = document.createElement("span");
+                                    imgSpan.style.display = "inline-block";
+                                    imgSpan.style.position = "relative";
+
+                                    const img = document.createElement("img");
+                                    img.src = "/uploads/"+md5;
+                                    img.style.border = "white 1px solid";
+                                    img.style.width = "160px";
+                                    img.style.height = "190px";
+                                    img.style.objectFit = "contain";
+                                    img.style.margin = "0px 8px";
+                                    img.style.cursor = "pointer";
+                                    setTimeout(() => {
+                                        imgSpan.className = "img-fade-in";
+                                        imgSpan.appendChild(img);
+                                        document.getElementById("imgShow").appendChild(imgSpan);
+                                    } , (i+1) * 100)
+                                });
+                                //移除动画类
+                                const totalDelay = (data.length+2) * 100; // 略大于图片添加的总时间
+                                setTimeout(() => {
+                                    document.querySelectorAll("span.img-fade-in").forEach(el => {
+                                        el.classList.remove("img-fade-in");
+                                    });
+                                }, totalDelay);
+
+                            })
+                    });
+
+                });
+                // 等待所有标签添加完毕后恢复按钮可用
+                const totalDelay = Object.keys(data).length * 100;
+
+                setTimeout(() => {
+                    icon1.style.display = 'inline-block';
+                    icon2.style.display = 'none';
+
+                    // 恢复点击
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.cursor = 'pointer';
+                    // 移除动画类
+                    document.querySelectorAll("li.tag-item").forEach(li => {
+                        li.classList.remove("tag-item");
+                    });
+                }, totalDelay);
             })
             .catch(error => {
                 console.error(error);
             });
-    })
+    });
+
+
+    // // 点击标签展示相应图片
+    // document.getElementById("25").addEventListener("click", function (e) {
+    //     e.preventDefault(); // 阻止表单默认提交
+    //     const formData = new FormData();
+    //     const tag=document.getElementById("25").innerText;
+    //     alert(tag);
+    //     formData.append("tag", tag);
+    //     fetch("/LocalLib?tag="+encodeURIComponent(tag), {
+    //         method: "GET"
+    //     })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             console.log(data);
+    //         })
+    //         .catch(error => {
+    //             console.error(error);
+    //         });
+    // })
 
 
     //点击临时存放区跳转
@@ -272,10 +486,11 @@
 
                     datediv.appendChild(datespan);
                     datesdiv.appendChild(datediv);
-                    document.getElementById("img_show").appendChild(datesdiv);
+
 
                     //   加入标签页点击事件
                     datediv.onclick = function (){
+                        // 刷新清除选中状态的交互信息
                         document.getElementById("multiple_selected").innerHTML = "";
                         // 清除所有标签的选中状态
                         const tabs = document.querySelectorAll('.Date_div');
@@ -300,7 +515,7 @@
                             .then(data => {
                                 selecteds = []; // 用于重置选中的图片的MD5
                                 selectedsNum = 0; // 用于重置选中的图片数量
-                                data.urlsAndMD5s.forEach(urlsAndMD5s => {
+                                data.urlsAndMD5s.forEach((urlsAndMD5s,i) => {
                                     // 设立一个收容单张图片的容器
                                     const tagAndImg = document.createElement("span");
                                     tagAndImg.style.display = "inline-block";
@@ -308,6 +523,7 @@
 
                                     const img = document.createElement("img");
                                     img.src = "/uploads/"+urlsAndMD5s[0];
+                                    console.log(img.src);
                                     img.style.border = "white 1px solid";
                                     img.style.width = "160px";
                                     img.style.height = "190px";
@@ -315,7 +531,7 @@
                                     img.style.margin = "0px 8px";
                                     img.style.cursor = "pointer";
                                     img.style.position = "relative";
-                                    tagAndImg.appendChild(img);
+
                                     //添加被选中状态
                                     const selectedImg = document.createElement("div");
                                     selectedImg.innerText = "√";
@@ -331,7 +547,28 @@
                                     selectedImg.style.display = "none";
                                     // selectedImg.className = "selected";
                                     selectedImg.id = "selected";
-                                    tagAndImg.appendChild(selectedImg);
+
+                                    const addTag = document.createElement("div");
+                                    addTag.innerText = "添加标签";
+                                    addTag.style.padding = "1px 0 1px 0";
+                                    addTag.style.position = "absolute";
+                                    addTag.style.border = "1px solid white";
+                                    addTag.style.color = "white";
+                                    addTag.style.background = "rgb(72,72,72)";
+                                    addTag.style.left = "8px";
+                                    addTag.style.top = "155px";
+                                    addTag.style.fontSize = "12px";
+                                    addTag.style.cursor = "pointer";
+                                    addTag.style.display = "none";
+                                    addTag.className = "add-tag-button";
+
+                                    setTimeout(() => {
+                                        tagAndImg.className = "img-fade-in";
+                                        tagAndImg.appendChild(img);
+                                        tagAndImg.appendChild(selectedImg);
+                                        tagAndImg.appendChild(addTag);
+                                        document.getElementById("imgShow").appendChild(tagAndImg);
+                                    } , (i+1) * 100)
 
 
                                     img.onclick = function (){
@@ -341,9 +578,10 @@
 
                                             selectedsNum--;
                                             document.getElementById("multiple_selected").innerText = "已选中"+selectedsNum+"张"+"点击添加";
+                                            document.getElementById("multiple_selected").style.cursor = "pointer";
                                             document.getElementById("multiple_selected").addEventListener("click", function (e){
-                                                e.stopPropagation();
-                                                e.preventDefault();
+                                                e.stopPropagation(); // 阻止事件冒泡
+                                                e.preventDefault(); // 取消默认行为
                                                 document.getElementById("multiple_selected").innerText = "";
                                                 document.getElementById("customModal").style.display = "flex";
                                                 document.getElementById("modalOverlay").style.display = "block";
@@ -357,6 +595,7 @@
 
                                             selectedsNum++;
                                             document.getElementById("multiple_selected").innerText = "已选中"+selectedsNum+"张"+"点击添加";
+                                            document.getElementById("multiple_selected").style.cursor = "pointer";
                                             document.getElementById("multiple_selected").addEventListener("click", function (e){
                                                 e.stopPropagation();
                                                 e.preventDefault();
@@ -374,19 +613,7 @@
                                         addTag.style.display = "none";
                                     }
 
-                                    const addTag = document.createElement("div");
-                                    addTag.innerText = "添加标签";
-                                    addTag.style.padding = "1px 0 1px 0";
-                                    addTag.style.position = "absolute";
-                                    addTag.style.border = "1px solid white";
-                                    addTag.style.color = "white";
-                                    addTag.style.background = "rgb(72,72,72)";
-                                    addTag.style.left = "8px";
-                                    addTag.style.top = "155px";
-                                    addTag.style.fontSize = "12px";
-                                    addTag.style.cursor = "pointer";
-                                    addTag.style.display = "none";
-                                    addTag.className = "add-tag-button";
+
 
                                     function addTagButtonClick(){
                                         addTag.addEventListener("click",function (e){
@@ -399,9 +626,15 @@
                                     }
                                     addTagButtonClick();
 
-                                    tagAndImg.appendChild(addTag);
-                                    document.getElementById("imgShow").appendChild(tagAndImg);
+
                                 })
+                                //移除动画类
+                                const totalDelay = (data.urlsAndMD5s.length+2) * 100; // 略大于图片添加的总时间
+                                setTimeout(() => {
+                                    document.querySelectorAll("span.img-fade-in").forEach(el => {
+                                        el.classList.remove("img-fade-in");
+                                    });
+                                }, totalDelay);
                             })
                         .catch(error => {
                             console.error(error);
@@ -409,14 +642,22 @@
                     }
                     // datesdiv.appendChild(datediv);
                 })
-
+                document.getElementById("img_show").appendChild(datesdiv);
                 //获取第一个时间戳并自动展示
                 const firstDiv = document.querySelector('.Dates_div > .Date_div');
-                if (firstDiv.children.length > 0) {
+                if (firstDiv && firstDiv.children.length > 0) {
+                    console.log("有内容");
                     firstDiv.classList.add('active');
                     if (firstDiv) firstDiv.click();
                 }else{
-
+                    console.log("没有内容");
+                    const noImg = document.createElement("img");
+                    noImg.src = "/Logo/temp_area_noing2.png"
+                    noImg.style.width = "260px";
+                    noImg.style.height = "auto";
+                    noImg.style.margin = "200px auto";
+                    noImg.style.display = "block";
+                    document.getElementById("img_show").appendChild(noImg);
                 }
 
 

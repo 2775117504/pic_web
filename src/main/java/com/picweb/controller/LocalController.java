@@ -28,7 +28,7 @@ public class LocalController {
     // 呈现临时图片的接口
     @GetMapping("/temp")
     @ResponseBody
-    public Map<Object, Object> temp(@RequestParam(name = "dateNum", required = false) Integer dateNum) {
+    public Map<Object, Object> temp(@RequestParam(name = "dateNum", required = false) Integer dateNum) {   // RequestParam注解用于将 请求参数 绑定到方法参数上。url带问号
         Map<Object, Object> map = new HashMap<>();
         // 获取所有时间戳并发送给前端
         if (dateNum == null){
@@ -58,7 +58,7 @@ public class LocalController {
     // 添加标签
     @PostMapping("/addTag")
     @ResponseBody
-    public String addTag(@RequestBody Map<String, Object> tag) { //RequestParam注解用于将 请求参数 绑定到方法参数上。url带问号
+    public String addTag(@RequestBody Map<String, Object> tag) { //RequestBody通常用于处理json数据，将json数据映射为Map对象
         System.out.println("传入的tag有: "+tag.get("tags"));
         System.out.println("被选中图片的md5有: "+tag.get("md5s"));
         tempService.uploadTag(tag.get("tags").toString(), (List<String>) tag.get("md5s"));
@@ -66,9 +66,26 @@ public class LocalController {
     }
 
 
-    @GetMapping
+    @GetMapping("/refreshTag")
     @ResponseBody
-    public String LocalLibTag(@RequestParam("tag") String tag) {
-        return "tag=" + tag;
+    public Map<Object, Object> LocalLibTag() {
+        Map<Object, Object> map = new HashMap<>();
+        int i = 0;
+        for (Integer id: tempService.getTagsIdList()){
+            map.put(id, tempService.getTagsList().get(i));
+            i++;
+        }
+        return map;
+    }
+
+    @GetMapping("/tag/{key}")
+    @ResponseBody
+    public List<String> tag(@PathVariable Integer key) {
+        List<String> md5s = tempService.getImageMD5s(key);
+        List<String> urls = new ArrayList<>();
+        for (String md5: md5s){
+            urls.add(tempService.getTImageUrls(md5));
+        }
+        return urls;
     }
 }

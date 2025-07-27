@@ -13,6 +13,7 @@ import com.picweb.service.common.RedisCacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -69,6 +70,32 @@ public class TempService {
             imageAndTagsDao.save(imageAndTagsEntity);
             System.out.println("成功把tag和其相对应的图片md5存入数据库！");
         }
-
     }
+    //获取目前tagName列表
+    public List<String> getTagsList() {
+        List<TagsEntity> tags = tagsDao.findAll();
+        List<String> tagNames=new ArrayList<>();
+        for (TagsEntity tag:tags) {
+            tagNames.add(tag.getTagName());
+        }
+        return tagNames;
+    }
+    //获取目前tagId列表
+    public List<Integer> getTagsIdList() {
+        List<TagsEntity> tags = tagsDao.findAll();
+        List<Integer> tagIds=new ArrayList<>();
+        for (TagsEntity tag:tags) {
+            tagIds.add(tag.getId());
+        }
+        return tagIds;
+    }
+    //获取tag对应的图片列表
+    public List<String> getImageMD5s(Integer tagId) {
+        return imageAndTagsDao.findImageHashByTagId(tagId);
+    }
+    //获取tag对应的图片列表
+    public String getTImageUrls(String MD5) {
+        return imageHashDao.findImageUrlByMD5(MD5);
+    }
+
 }
