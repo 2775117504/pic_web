@@ -339,6 +339,8 @@
         btn.style.pointerEvents = 'none'; // 禁用点击
         btn.style.cursor = 'not-allowed'; // 改变鼠标样式
 
+        let currentRequestId = 0; // 用于唯一标识每次点击发送请求的初始化
+
         const tagList = document.getElementById("tag_list");
         tagList.innerHTML = ""; // 清空旧标签
 
@@ -356,20 +358,23 @@
                         tagLi.classList.add("tag-item"); // 添加动画类
                         tagLi.appendChild(tagA);
                         tagList.appendChild(tagLi);
-                    }, index * 100); // 每个标签延迟出现，100ms 间隔
+                    }, index * 50); // 每个标签延迟出现，100ms 间隔
+                    // 点击标签后显示对应图片的事件
                     tagLi.addEventListener("click", function (e) {
-
                         e.preventDefault();
-                        fetch(`/LocalLib/tag/${key}`, {
-                            method: "GET"
-                        })
+
+                        document.getElementById("img_show").innerHTML = ""; // 清空旧的内容
+                        //添加顶部导航栏
+                        const datesdiv=document.createElement("div")
+                        datesdiv.className="Dates_div"
+                        document.getElementById("img_show").appendChild(datesdiv);
+
+                        const thisRequestId = ++currentRequestId;// 增加请求 ID
+
+                        fetch(`/LocalLib/tag/${key}`, {method: "GET"})
                             .then(res => res.json())
                             .then(data => {
-                                //添加顶部导航栏
-                                const datesdiv=document.createElement("div")
-                                datesdiv.className="Dates_div"
-                                document.getElementById("img_show").innerHTML = ""; // 清空旧的内容
-                                document.getElementById("img_show").appendChild(datesdiv);
+                                if (thisRequestId !== currentRequestId) return;// 检查是否仍是当前请求
 
                                 //设立一个收容临时图片的容器
                                 const imgsdiv = document.createElement("div");
@@ -381,19 +386,22 @@
                                 //添加标签对应图片
                                 console.log(data);
                                 data.forEach((md5,i) => {
-                                    const imgSpan = document.createElement("span");
-                                    imgSpan.style.display = "inline-block";
-                                    imgSpan.style.position = "relative";
-
-                                    const img = document.createElement("img");
-                                    img.src = "/uploads/"+md5;
-                                    img.style.border = "white 1px solid";
-                                    img.style.width = "160px";
-                                    img.style.height = "190px";
-                                    img.style.objectFit = "contain";
-                                    img.style.margin = "0px 8px";
-                                    img.style.cursor = "pointer";
                                     setTimeout(() => {
+                                        if (thisRequestId !== currentRequestId) return;// 检查是否仍是当前请求
+
+                                        const imgSpan = document.createElement("span");
+                                        imgSpan.style.display = "inline-block";
+                                        imgSpan.style.position = "relative";
+
+                                        const img = document.createElement("img");
+                                        img.src = "/uploads/"+md5;
+                                        img.style.border = "white 1px solid";
+                                        img.style.width = "160px";
+                                        img.style.height = "190px";
+                                        img.style.objectFit = "contain";
+                                        img.style.margin = "0px 8px";
+                                        img.style.cursor = "pointer";
+
                                         imgSpan.className = "img-fade-in";
                                         imgSpan.appendChild(img);
                                         document.getElementById("imgShow").appendChild(imgSpan);
@@ -408,11 +416,14 @@
                                 }, totalDelay);
 
                             })
+                            .catch(error => {
+                                    console.error("点击标签后获取相应图片的请求失败：", error);
+                            });
                     });
 
                 });
                 // 等待所有标签添加完毕后恢复按钮可用
-                const totalDelay = Object.keys(data).length * 100;
+                const totalDelay = Object.keys(data).length * 50;
 
                 setTimeout(() => {
                     icon1.style.display = 'inline-block';
@@ -457,6 +468,8 @@
     document.getElementById("temp_img_tag").addEventListener("click", function (e) {
         e.preventDefault();
         document.getElementById("img_show").innerHTML = "";
+
+        let currentRequestId = 0; // 用于唯一标识每次点击发送请求的初始化
         fetch("/LocalLib/temp", {
             method: "GET"
         })
@@ -488,15 +501,15 @@
                     datesdiv.appendChild(datediv);
 
 
-                    //   加入标签页点击事件
+                    //   加入时间页点击事件
                     datediv.onclick = function (){
-                        // 刷新清除选中状态的交互信息
-                        document.getElementById("multiple_selected").innerHTML = "";
+
+                        document.getElementById("multiple_selected").innerHTML = "";// 刷新清除选中状态的交互信息
                         // 清除所有标签的选中状态
                         const tabs = document.querySelectorAll('.Date_div');
                         tabs.forEach(t => t.classList.remove('active'));
-                        // 添加当前标签页的选中状态
-                        datediv.classList.add('active');
+
+                        datediv.classList.add('active');// 添加当前标签页的选中状态
 
 
                         if (document.getElementById("imgShow")){
@@ -508,6 +521,8 @@
                         div.className = "imgShow";
                         div.style.marginTop = "8px";
                         document.getElementById("img_show").appendChild(div);
+
+                        const thisRequestId = ++currentRequestId;// 增加请求 ID
                         fetch("/LocalLib/temp?dateNum="+encodeURIComponent(key),{
                             method:"GET"
                         })
@@ -516,6 +531,9 @@
                                 selecteds = []; // 用于重置选中的图片的MD5
                                 selectedsNum = 0; // 用于重置选中的图片数量
                                 data.urlsAndMD5s.forEach((urlsAndMD5s,i) => {
+                                    if (thisRequestId !== currentRequestId) {
+                                        return; // 忽略过期的请求
+                                    }
                                     // 设立一个收容单张图片的容器
                                     const tagAndImg = document.createElement("span");
                                     tagAndImg.style.display = "inline-block";
@@ -563,6 +581,9 @@
                                     addTag.className = "add-tag-button";
 
                                     setTimeout(() => {
+                                        if (thisRequestId !== currentRequestId) {
+                                            return; // 忽略过期的请求
+                                        }
                                         tagAndImg.className = "img-fade-in";
                                         tagAndImg.appendChild(img);
                                         tagAndImg.appendChild(selectedImg);

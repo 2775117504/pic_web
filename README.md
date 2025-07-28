@@ -91,6 +91,12 @@
 - 异步竞态问题（Race Condition）：
   - 问题描述：当你切换标签过快时，前一个网络请求还未完成，
   后一个请求到达后渲染内容，却最终混入到上一个的响应内容，造成图片渲染错乱。
-  - 解决方案：
+  - 解决方案：引入abortController无法解决问题❌，所以引入全局变量解决
+            使用一个全局请求编号 currentRequestId，为每次标签切换分配唯一编号
+            let currentRequestId = 0;
+            const thisRequestId = ++currentRequestId;
+            每个图片请求回来时，先判断：
+            if (thisRequestId !== currentRequestId) return;
+            
 
 
