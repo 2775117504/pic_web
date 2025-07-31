@@ -16,11 +16,17 @@
     .img_show{
         border: white 1px solid;
         position: absolute;
-        margin-left: 250px;
+
         width: 1244px;
-        height: 800px;
-        top: 150px;
+        height: 826px;
+        top: 135px;
+        margin-left: 250px;
         transform: translateY(-50px);
+
+        /*居中对齐样式*/
+        /*top: 50%;*/
+        /*left: 50%;*/
+        /*transform: translate(-50%, -50%);*/
     }
 
 
@@ -173,8 +179,8 @@
         background-color: #7615c7;
         text-align: center;
         cursor: pointer;  /*//鼠标样式变成手型，表示此处能点击的一种提示*/
-
-        transition: transform 0.3s ease;
+        /*一旦 transform 的值发生变化，就不要立刻跳变，而是用 0.3s，按ease的节奏过渡*/
+        transition: transform 0.3s ease; /*// 添加过渡效果*/
     }
     .temp_img:hover{
         color: white;
@@ -200,6 +206,8 @@
 
     }
     li{
+        font-weight: lighter;
+        font-size: 14px;
         border: white 1px solid;
         width: 130px;
         background-color: rebeccapurple;
@@ -211,6 +219,7 @@
 
     li:hover {
         color: white;
+        font-weight: normal;
         text-shadow:
                 -1px -1px 1px rgba(255, 255, 255, 0.60),   /*左下*/
                 1px -1px 1px rgba(255, 255, 255, 0.60),     /*右下*/
@@ -220,10 +229,10 @@
     }
     .all_img_tags{
         border: white 1px solid;
-        width: 132px;
+        width: 130px;
         margin-left: -30px;
         position: absolute;
-        top: 150px;
+        top: 135px;
         transform: translateY(-50px); /*向上移动*/
     }
 /*刷新标签的动画    */
@@ -261,18 +270,60 @@
         animation: fadeIn 0.2s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
     }
 
+/*分页按钮样式*/
+    .page_btns {
+        border: white 1px solid;
+        display: flex;
+        position: absolute;
+        left: 872px;
+        transform: translateX(-50%);
+    }
+
+    .page_btns .pre_page{
+        padding: 3px 16px;
+        font-size: 16px;
+        color: white;
+        cursor: pointer;
+        background: rgb(89, 44, 117);
+        border: 1px solid #ccc;
+        border-bottom-left-radius: 8px;
+        transition: 0.2s;
+    }
+    .page_btns .next_page{
+        padding: 3px 16px;
+        font-size: 16px;
+        color: white;
+        cursor: pointer;
+        background: rgb(89, 44, 117);
+        border: 1px solid #ccc;
+        border-bottom-right-radius: 8px;
+        transition: 0.2s;
+    }
+
+    .page_btns button:hover {
+        background-color: #e0e0e0;
+        color: #000000;
+    }
+    /*禁用样式*/
+    .page_btns button:disabled {
+        color: #999;
+        background-color: #eee;
+        cursor: not-allowed;
+    }
+
 
 </style>
 
-<div>
-<!--    右上角多选标签信息显示区域-->
+
+<div style="border: white 1px solid;display: flex;position: relative ; height: 912px ;">
+    <!--    右上角多选标签信息显示区域-->
     <div id="multiple_selected" class="multiple_selected"
-         style="text-align: right;color: white;border: white 1px solid;width: 150px;height: 20px; position: absolute;top: 78px;right: 212px;">
+         style="text-align: right;color: white;border: white 1px solid;width: 150px;height: 20px; position: absolute;top: 64px;left: 1344px;">
     </div>
-<!--    标签显示区域-->
+    <!--    标签显示区域-->
     <div id="all_img_tags" class="all_img_tags">
         <!--    刷新图标-->
-        <div id="refreshBtn" class="refresh-icon" style="color: white;border: white 1px solid;display: block;margin-left: 105px;height: 24px;">
+        <div id="refreshBtn" class="refresh-icon" style="color: white;border: white 1px solid;display: block;margin-left: 105px;height: 24px;position: relative">
             <svg id="icon1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.7" stroke="currentColor" class="size-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
             </svg>
@@ -297,36 +348,17 @@
 
         </ul>
     </div>
-<!--    图片显示区域-->
-
-    <div id="img_show" class="img_show">
-    </div>
-
-
+    <!--    图片显示区域-->
+    <div id="img_show" class="img_show"></div>
 </div>
+<!--分页按钮-->
+<div class="page_btns">
+    <button id="pre_page" class="pre_page">&lt;</button>
+    <button id="next_page" class="next_page">&gt;</button>
+</div>
+
 </body>
-
 <script>
-    // // 页面加载时就刷新标签,标签初始化
-    // window.addEventListener("load", () => {
-    //     fetch("/LocalLib/refreshTag", {
-    //         method: "GET"
-    //     })
-    //         .then(res => res.json())
-    //         .then(data => {
-    //             const tagList = document.getElementById("tag_list");
-    //             tagList.innerHTML = ""; // 清空旧的
-    //             data.forEach(tag => {
-    //                 const li = document.createElement("li");
-    //                 const a = document.createElement("a");
-    //                 a.href = "#";
-    //                 a.innerText = tag;
-    //                 li.appendChild(a);
-    //                 tagList.appendChild(li);
-    //             });
-    //         });
-    // });
-
     // 点击刷新图标的刷新标签事件
     const btn = document.getElementById('refreshBtn');
     const icon1 = document.getElementById('icon1');
@@ -444,26 +476,6 @@
     });
 
 
-    // // 点击标签展示相应图片
-    // document.getElementById("25").addEventListener("click", function (e) {
-    //     e.preventDefault(); // 阻止表单默认提交
-    //     const formData = new FormData();
-    //     const tag=document.getElementById("25").innerText;
-    //     alert(tag);
-    //     formData.append("tag", tag);
-    //     fetch("/LocalLib?tag="+encodeURIComponent(tag), {
-    //         method: "GET"
-    //     })
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             console.log(data);
-    //         })
-    //         .catch(error => {
-    //             console.error(error);
-    //         });
-    // })
-
-
     //点击临时存放区跳转
     document.getElementById("temp_img_tag").addEventListener("click", function (e) {
         e.preventDefault();
@@ -549,6 +561,8 @@
                                     img.style.margin = "0px 8px";
                                     img.style.cursor = "pointer";
                                     img.style.position = "relative";
+                                    img.style.display = "block"; // 使span和img占位相同
+                                    // img.style.fontSize = "0px";//上下间距消失的其中之一方法
 
                                     //添加被选中状态
                                     const selectedImg = document.createElement("div");
@@ -697,5 +711,8 @@
                 console.error(error);
             });
     })
+
+    //绑定分页点击事件
+
 </script>
 </html>

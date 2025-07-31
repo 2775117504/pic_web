@@ -11,6 +11,10 @@ import com.picweb.dao.entity.ImgUploadDateEntity;
 import com.picweb.dao.entity.TagsEntity;
 import com.picweb.service.common.RedisCacheService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -49,10 +53,12 @@ public class TempService {
             System.out.println("从缓存中获取数据");
             return cached;
         }
-
+        //PageRequest.of(页码, 每页数量, 排序规则)
+        Pageable pageable = PageRequest.of(0, 28, Sort.by("imgDateId").ascending());
         // 缓存未命中，从数据库查询数据
-        List<ImageHashEntity> result = imageHashDao.findByImgDateId(dateNum);
-
+        Page<ImageHashEntity> page = imageHashDao.findByImgDateId(dateNum, pageable);
+        List<ImageHashEntity> result = page.getContent(); // 获取当前页码查询的数据集
+        System.out.println("输出的28张图"+result);
         // 如果有结果，写入缓存（1小时过期）
         if (result != null && !result.isEmpty()) {
             System.out.println("从数据库中查询，并写入缓存");

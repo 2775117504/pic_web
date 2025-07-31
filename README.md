@@ -88,15 +88,38 @@
 
 #  项目bug日志
 ## 1. *2025-7-27 23:05:33*
-- 异步竞态问题（Race Condition）：
-  - 问题描述：当你切换标签过快时，前一个网络请求还未完成，
-  后一个请求到达后渲染内容，却最终混入到上一个的响应内容，造成图片渲染错乱。
-  - 解决方案：引入abortController无法解决问题❌，所以引入全局变量解决
-            使用一个全局请求编号 currentRequestId，为每次标签切换分配唯一编号
-            let currentRequestId = 0;
-            const thisRequestId = ++currentRequestId;
-            每个图片请求回来时，先判断：
-            if (thisRequestId !== currentRequestId) return;
+- *异步竞态问题（Race Condition）*：
+  - *问题描述*：当你切换标签过快时，前一个网络请求还未完成， 后一个请求到达后渲染内容，<br>
+              却最终混入到上一个的响应内容，造成图片渲染错乱。
+  - *解决方案*：引入abortController无法解决问题❌，所以引入全局变量解决<br>
+            使用一个全局请求编号 currentRequestId，为每次标签切换分配唯一编号:<br>
+            let currentRequestId = 0;<br>
+            点击后全局变量自增,赋值给当前请求编号:<br>
+            const thisRequestId = ++currentRequestId;<br>
+            每个图片请求回来时，先判断：<br>
+            if (thisRequestId !== currentRequestId) return;<br>
+
+#  项目开发日志
+## 1. *2025-7-27 23:05:33*
+### 分页设计:
+  -     //dao层启用jpa内置的分页功能
+        Page<ImageHashEntity> findByImgDateId(Integer imgDateId, Pageable pageable);
+  -     // 创建分页参数：第几页（从0开始）、每页条数、排序
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
+  - tip:
+  -     //按多个字段排序:	
+        SSort.by("field1").ascending().and(Sort.by("field2").descending())
+  -     //前端用户动态改变排序方式:
+        Sort sort = direction.equalsIgnoreCase("desc") ?
+        Sort.by("url").descending() :
+        Sort.by("url").ascending();
+  -     //调用dao层
+        Page<ImageHashEntity> page = imageHashRepository.findByImgDateId(5, pageable);
+  -     //拿数据
+        List<ImageHashEntity> list = page.getContent();  // 当前页数据
+        long totalElements = page.getTotalElements();    // 总数据条数
+        int totalPages = page.getTotalPages();           // 总页数
+
             
 
 

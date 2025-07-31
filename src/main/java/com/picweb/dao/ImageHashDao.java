@@ -1,6 +1,8 @@
 package com.picweb.dao;
 
 import com.picweb.dao.entity.ImageHashEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -28,12 +30,21 @@ import java.util.List;
 public interface ImageHashDao extends JpaRepository<ImageHashEntity, String> {
     @Query("SELECT i FROM ImageHashEntity i WHERE i.temp = false") //i是别名，必须添加！！！
     List<ImageHashEntity> findAllTempImg();
-    //查询所有img_date_id值等于指定值的查询方法
-    @Query(value = "SELECT * FROM images WHERE img_date_id = ?1", nativeQuery = true) //使用mysql原生写法，true表支持
-    List<ImageHashEntity> findByImgDateId(Integer imgDateId);
 
+    //查询所有img_date_id值等于指定值的数并实现分页功能
+    //@Query(value = "SELECT * FROM images WHERE img_date_id = ?1", nativeQuery = true) 使用mysql原生写法，true表支持
+
+    //自动生成分页功能和查询条件，Pageable是JPA 中用于分页和排序查询的参数接口，代表一个“分页请求”，包括：
+    //当前页码
+    //每页条数
+    //排序规则
+    // 它的实现类PageRequest.of(页码, 每页数量, 排序规则)
+    Page<ImageHashEntity> findByImgDateId(Integer imgDateId, Pageable pageable);
+
+    //查询所有md5等于指定值的图片url
     @Query("SELECT i.url FROM ImageHashEntity i WHERE i.MD5 = ?1")
     String findImageUrlByMD5(String md5);
+
 
     /**
      * ImageHashEntity：表示这个 DAO 操作的实体类。
