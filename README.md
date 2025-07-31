@@ -102,23 +102,24 @@
 #  项目开发日志
 ## 1. *2025-7-27 23:05:33*
 ### 分页设计:
-  -     //dao层启用jpa内置的分页功能
-        Page<ImageHashEntity> findByImgDateId(Integer imgDateId, Pageable pageable);
-  -     // 创建分页参数：第几页（从0开始）、每页条数、排序
+1.     //dao层启用jpa内置的分页功能
+       Page<ImageHashEntity> findByImgDateId(Integer imgDateId, Pageable pageable);
+2.     // 创建分页参数：第几页（从0开始）、每页条数、排序
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
-  - tip:
+3.     //调用dao层
+        Page<ImageHashEntity> page = imageHashRepository.findByImgDateId(5, pageable);
+4.     //拿数据
+        List<ImageHashEntity> list = page.getContent();  // 当前页数据
+        long totalElements = page.getTotalElements();    // 总数据条数
+        int totalPages = page.getTotalPages();           // 总页数
+- tip:
   -     //按多个字段排序:	
         SSort.by("field1").ascending().and(Sort.by("field2").descending())
   -     //前端用户动态改变排序方式:
         Sort sort = direction.equalsIgnoreCase("desc") ?
         Sort.by("url").descending() :
         Sort.by("url").ascending();
-  -     //调用dao层
-        Page<ImageHashEntity> page = imageHashRepository.findByImgDateId(5, pageable);
-  -     //拿数据
-        List<ImageHashEntity> list = page.getContent();  // 当前页数据
-        long totalElements = page.getTotalElements();    // 总数据条数
-        int totalPages = page.getTotalPages();           // 总页数
+
 
             
 

@@ -44,7 +44,7 @@ public class TempService {
     }*/
 
     // 带缓存的方法：根据日期 ID 获取临时图片列表
-    public List<ImageHashEntity> getTempImages(Integer dateNum) {
+    public List<ImageHashEntity> getTempImages(Integer dateNum, int pageNum) {
         String cacheKey = "temp_images:date_id:" + dateNum;
 
         // 尝试从缓存中读取数据
@@ -54,7 +54,7 @@ public class TempService {
             return cached;
         }
         //PageRequest.of(页码, 每页数量, 排序规则)
-        Pageable pageable = PageRequest.of(0, 28, Sort.by("imgDateId").ascending());
+        Pageable pageable = PageRequest.of(pageNum, 28, Sort.by("imgDateId").ascending());
         // 缓存未命中，从数据库查询数据
         Page<ImageHashEntity> page = imageHashDao.findByImgDateId(dateNum, pageable);
         List<ImageHashEntity> result = page.getContent(); // 获取当前页码查询的数据集

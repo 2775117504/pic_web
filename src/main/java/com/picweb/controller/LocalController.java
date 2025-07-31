@@ -28,7 +28,8 @@ public class LocalController {
     // 呈现临时图片的接口
     @GetMapping("/temp")
     @ResponseBody
-    public Map<Object, Object> temp(@RequestParam(name = "dateNum", required = false) Integer dateNum) {   // RequestParam注解用于将 请求参数 绑定到方法参数上。url带问号
+    public Map<Object, Object> temp(@RequestParam(name = "dateNum", required = false) Integer dateNum,
+                                    @RequestParam(name = "pageNum", defaultValue = "1") int pageNum) {   // RequestParam注解用于将 请求参数 绑定到方法参数上。url带问号
         Map<Object, Object> map = new HashMap<>();
         // 获取所有时间戳并发送给前端
         if (dateNum == null){
@@ -43,7 +44,7 @@ public class LocalController {
         // 获取指定时间戳的图片并返回给前端
         }else {
             List<List> urlsAndMD5s = new ArrayList<>();
-            List<ImageHashEntity> dateImgs = tempService.getTempImages(dateNum);
+            List<ImageHashEntity> dateImgs = tempService.getTempImages(dateNum, pageNum);
             for (ImageHashEntity dateImg: dateImgs){
                 List<String> urlAndMD5 = new ArrayList<>();
                 urlAndMD5.add(dateImg.getUrl());
